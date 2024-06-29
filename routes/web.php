@@ -21,7 +21,7 @@ Route::middleware([
         Route::get('/trips/create', 'create')->name('trip.create');
         Route::post('/trips', 'store')->name('trip.store');
         Route::get('/trips/{trip}/edit', 'edit')->name('trip.edit');
-        Route::put('/trips/{trip}', 'update')->name('trip.update');
+        Route::put('/trips/{trip}/', 'update')->name('trip.update');
         Route::delete('/trips/{trip}/destroy', 'destroy')->name('trip.destroy');
     });
 
