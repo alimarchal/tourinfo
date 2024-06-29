@@ -8,7 +8,7 @@
     </x-slot>
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
 
                 <x-status-message class="mb-4" />
@@ -18,7 +18,7 @@
                         @if($trips->isNotEmpty())
                             <table class="min-w-max w-full table-auto">
                                 <thead>
-                                <tr class="bg-bank-green text-white uppercase text-sm">
+                                <tr class=" text-black uppercase text-sm">
                                     <th class="py-2 px-2 text-center">ID</th>
                                     <th class="py-2 px-2 text-center">Trip Name</th>
                                     <th class="py-2 px-2 text-center">Guest Name</th>
