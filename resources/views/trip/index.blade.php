@@ -1,6 +1,4 @@
 <x-app-layout>
-    @push('header')
-    @endpush
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-2xl uppercase text-gray-800 dark:text-gray-200 leading-tight inline-block">
@@ -44,7 +42,7 @@
                                         <th class="py-3 px-6 text-center">Profit</th>
                                         <th class="py-3 px-6 text-center">Agent Name</th>
                                         <th class="py-3 px-6 text-center">Booking Status</th>
-                                        <th class="py-3 px-6 text-center">Action</th>
+                                        <th class="py-3 px-6 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 text-sm">
@@ -64,6 +62,17 @@
                                             <td class="py-3 px-6 text-center">{{ $trip->agent_name }}</td>
                                             <td class="py-3 px-6 text-center">{{ $trip->booking_status }}</td>
                                             <td class="py-3 px-6 text-center">
+                                                <a href="{{ route('trip.show', $trip->id) }}"
+                                                    class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
+                                                    title="View">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="M12 14v5m0-17v5m-9-2h5m12 0h-5m-6 10l3-3m2 3l3-3" />
+                                                    </svg>
+                                                </a>
                                                 <a href="{{ route('trip.edit', $trip->id) }}"
                                                     class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
                                                     title="Edit">
@@ -94,43 +103,11 @@
                                 </tbody>
                             </table>
                         @else
-                            <div class="text-center py-4">
-                                <p class="text-gray-700 dark:text-gray-400">No trips found. Please add a new trip.</p>
-                            </div>
+                            <p class="p-6">No trips found.</p>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="py-6">
-        <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <!-- Existing code -->
-
-                <!-- Add comments section -->
-                <div class="bg-white dark:bg-gray-800 p-6 mt-4 rounded-lg shadow-md">
-                    <form action="{{ route('comments.store') }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="trip_id" value="{{ $trip->id }}">
-                        <div class="mb-4">
-                            <label for="description" class="block text-gray-700 dark:text-gray-200">Add a
-                                comment:</label>
-                            <textarea name="description" id="description" rows="4"
-                                class="w-full mt-2 p-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-gray-900 dark:text-gray-300"></textarea>
-                        </div>
-                        <div class="flex justify-between">
-                            <button type="submit" action="post"
-                                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white border border-indigo-600 text-xs font-semibold uppercase rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                                method="POST">
-                                @csrf
-                                Save
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </x-app-layout>

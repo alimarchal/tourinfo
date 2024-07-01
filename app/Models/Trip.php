@@ -22,4 +22,10 @@ class Trip extends Model
         'agent_name',
         'booking_status'
     ];
+    // Trip.php (Model)
+public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
+
 }

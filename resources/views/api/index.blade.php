@@ -91,6 +91,29 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    <td>
+                                        @foreach ($trips as $trip)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $trip->trip_name }}</td>
+                                                <!-- Add other columns as needed -->
+                                                <td>
+                                                    <a href="{{ route('trips.show', $trip->id) }}"
+                                                        class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
+                                                        title="Show">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                d="M21 21l-3-3m2 0a3 3 0 00-3-3H4a2 2 0 01-2-2V7a2 2 0 012-2h12a3 3 0 013 3v11z" />
+                                                        </svg>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
+                                    </td>
                                 </tbody>
                             </table>
                         @else
