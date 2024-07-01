@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CommentController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,6 +25,11 @@ Route::middleware([
         Route::get('/trips/{trip}/edit', 'edit')->name('trip.edit');
         Route::put('/trips/{trip}', 'update')->name('trip.update');
         Route::delete('/trips/{trip}/destroy', 'destroy')->name('trip.destroy');
+
+
     });
+
+
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 
 });
