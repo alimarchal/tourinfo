@@ -6,16 +6,11 @@ use App\Http\Controllers\CommentController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return to_route('login');
 });
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
     Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
-
 
     // Trip Information
     Route::controller(TripController::class)->group(function () {
@@ -25,13 +20,11 @@ Route::middleware([
         Route::get('/trips/{trip}/edit', 'edit')->name('trip.edit');
         Route::put('/trips/{trip}/', 'update')->name('trip.update');
         Route::delete('/trips/{trip}/destroy', 'destroy')->name('trip.destroy');
-Route::get('/trips/{trip}', [TripController::class, 'show'])->name('trip.show');
-
-
+        Route::get('/trips/{trip}', [TripController::class, 'show'])->name('trip.show');
 
     });
 
 
-Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 
 });

@@ -35,7 +35,7 @@ class TripController extends Controller
 
         DB::beginTransaction();
         try {
-            $trip = Trip::create($validated);
+            $trip = Trip::create($request->all());
             DB::commit();
             session()->flash('success', 'Trip created successfully.');
             return redirect()->route('trip.index');
@@ -71,7 +71,7 @@ class TripController extends Controller
 
         DB::beginTransaction();
         try {
-            $trip->update($validated);
+            $trip->update($request->all());
             DB::commit();
             session()->flash('success', 'Trip successfully updated.');
             return redirect()->route('trip.edit', $trip->id);

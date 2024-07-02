@@ -22,46 +22,43 @@
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <x-status-message class="mb-4" />
-                <div
-                    class="pb-2 lg:pb-2 bg-white dark:bg-gray-800 dark:bg-gradient-to-bl dark:from-gray-700/50 dark:via-transparent border-b border-gray-200 dark:border-gray-700">
+                <div class="pb-0 lg:pb-0 bg-white dark:bg-gray-800 dark:bg-gradient-to-bl dark:from-gray-700/50 dark:via-transparent border-b border-gray-200 dark:border-gray-700">
 
                     <div class="relative overflow-x-auto">
                         @if ($trips->isNotEmpty())
-                            <table class="min-w-max w-full table-auto">
+                            <table class="min-w-max w-full table-auto" style="font-size: 12px;">
                                 <thead>
                                     <tr class="bg-gray-800 text-white uppercase text-sm">
-                                        <th class="py-3 px-6 text-center">ID</th>
-                                        <th class="py-3 px-6 text-center">Trip Name</th>
-                                        <th class="py-3 px-6 text-center">Guest Name</th>
-                                        <th class="py-3 px-6 text-center">Guest Email</th>
-                                        <th class="py-3 px-6 text-center">Guest Contact</th>
-                                        <th class="py-3 px-6 text-center">Check-in Date</th>
-                                        <th class="py-3 px-6 text-center">Booking Date</th>
-                                        <th class="py-3 px-6 text-center">Total Cost</th>
-                                        <th class="py-3 px-6 text-center">Total Expenses</th>
-                                        <th class="py-3 px-6 text-center">Profit</th>
-                                        <th class="py-3 px-6 text-center">Agent Name</th>
-                                        <th class="py-3 px-6 text-center">Booking Status</th>
-                                        <th class="py-3 px-6 text-center">Actions</th>
+                                        <th class="py-2 px-1 text-center">ID</th>
+                                        <th class="py-2 px-1 text-center">Trip Name</th>
+                                        <th class="py-2 px-1 text-center">Guest Name</th>
+                                        <th class="py-2 px-1 text-center">Guest Contact</th>
+                                        <th class="py-2 px-1 text-center">Check-in Date</th>
+                                        <th class="py-2 px-1 text-center">Booking Date</th>
+                                        <th class="py-2 px-1 text-center">Total Cost</th>
+                                        <th class="py-2 px-1 text-center">Total Expenses</th>
+                                        <th class="py-2 px-1 text-center">Profit</th>
+                                        <th class="py-2 px-1 text-center">Agent Name</th>
+                                        <th class="py-2 px-1 text-center">Booking Status</th>
+                                        <th class="py-2 px-1 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-gray-700 text-sm">
                                     @foreach ($trips as $trip)
                                         <tr
                                             class="border-b border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                                            <td class="py-3 px-6 text-center">{{ $loop->iteration }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->trip_name }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->guest_name }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->guest_email }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->guest_contact }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->check_in_date }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->booking_date }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->total_cost }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->total_expenses }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->profit }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->agent_name }}</td>
-                                            <td class="py-3 px-6 text-center">{{ $trip->booking_status }}</td>
-                                            <td class="py-3 px-6 text-center">
+                                            <td class="py-1 px-1 text-black text-center">{{ $loop->iteration }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->trip_name }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->guest_name }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->guest_contact }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->check_in_date }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->booking_date }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->total_cost }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->total_expenses }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->profit }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->agent_name }}</td>
+                                            <td class="py-1 px-1 text-black text-center">{{ $trip->booking_status }}</td>
+                                            <td class="py-1 px-1 text-black text-center">
                                                 <a href="{{ route('trip.show', $trip->id) }}"
                                                     class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
                                                     title="View">
