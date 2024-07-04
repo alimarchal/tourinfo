@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTripRequest;
 use App\Http\Requests\UpdateTripRequest;
 use App\Models\Trip;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TripController extends Controller
@@ -12,9 +13,36 @@ class TripController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $trips = Trip::all();
+        // Initialize the query builder
+        $query = Trip::query();
+
+        // Apply filters based on search and other parameters
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('trip_name', 'like', '%' . $search . '%')
+                  ->orWhere('guest_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('filter_trip_name')) {
+            $query->where('trip_name', 'like', '%' . $request->input('filter_trip_name') . '%');
+        }
+
+        if ($request->has('filter_guest_name')) {
+            $query->where('guest_name', 'like', '%' . $request->input('filter_guest_name') . '%');
+        }
+
+        if ($request->has('filter_booking_status')) {
+            $query->where('booking_status', $request->input('filter_booking_status'));
+        }
+
+        // Fetch the filtered trips
+        $trips = $query->get();
+
+        // Return the view with filtered trips
         return view('trip.index', compact('trips'));
     }
 
@@ -31,32 +59,19 @@ class TripController extends Controller
      */
     public function store(StoreTripRequest $request)
     {
-        $validated = $request->validate([
-            'trip_name' => 'required|string|max:255',
-            'guest_name' => 'required|string|max:255',
-            'guest_email' => 'required|string|email|max:255',
-            'guest_contact' => 'required|string|max:255',
-            'check_in_date' => 'required|date',
-            'booking_date' => 'required|date',
-            'total_cost' => 'required|numeric',
-            'total_expenses' => 'required|numeric',
-            'profit' => 'required|numeric',
-            'agent_name' => 'required|string|max:255',
-            'booking_status' => 'required|in:Pending,Booked',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
         try {
             $trip = Trip::create($request->all());
             DB::commit();
             session()->flash('success', 'Trip created successfully.');
-            return to_route('trip.index');
+            return redirect()->route('trip.index');
         } catch (\Exception $e) {
             DB::rollback();
             session()->flash('error', 'An error occurred: ' . $e->getMessage());
             return back()->withInput();
         }
-
     }
 
     /**
@@ -64,7 +79,7 @@ class TripController extends Controller
      */
     public function show(Trip $trip)
     {
-        //
+        return view('trip.show', compact('trip'));
     }
 
     /**
@@ -80,34 +95,19 @@ class TripController extends Controller
      */
     public function update(UpdateTripRequest $request, Trip $trip)
     {
-
-        $validated = $request->validate([
-            'trip_name' => 'required|string|max:255',
-            'guest_name' => 'required|string|max:255',
-            'guest_email' => 'required|string|email|max:255',
-            'guest_contact' => 'required|string|max:255',
-            'check_in_date' => 'required|date',
-            'booking_date' => 'required|date',
-            'total_cost' => 'required|numeric',
-            'total_expenses' => 'required|numeric',
-            'profit' => 'required|numeric',
-            'agent_name' => 'required|string|max:255',
-            'booking_status' => 'required|in:Pending,Booked',
-        ]);
+        $validated = $request->validated();
 
         DB::beginTransaction();
         try {
             $trip->update($request->all());
             DB::commit();
             session()->flash('success', 'Trip successfully updated.');
-            return to_route('trip.edit', $trip->id);
+            return redirect()->route('trip.edit', $trip->id);
         } catch (\Exception $e) {
             DB::rollback();
             session()->flash('error', 'An error occurred: ' . $e->getMessage());
             return back()->withInput();
         }
-
-        return redirect()->route('trips.index')->with('success', 'Trip successfully updated!');
     }
 
     /**
@@ -115,13 +115,12 @@ class TripController extends Controller
      */
     public function destroy(Trip $trip)
     {
-
         DB::beginTransaction();
         try {
             $trip->delete();
             DB::commit();
             session()->flash('success', 'Trip deleted successfully.');
-            return to_route('trip.index');
+            return redirect()->route('trip.index');
         } catch (\Exception $e) {
             DB::rollback();
             session()->flash('error', 'An error occurred: ' . $e->getMessage());

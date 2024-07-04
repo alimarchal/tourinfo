@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
+
 class Trip extends Model
 {
     use HasFactory;
@@ -20,6 +22,7 @@ class Trip extends Model
         'total_expenses',
         'profit',
         'agent_name',
-        'booking_status'
+        'booking_status',
+        'path_attachment',
     ];
 }
