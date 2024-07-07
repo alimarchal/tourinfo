@@ -21,7 +21,6 @@
 
                     <form method="POST" action="{{ route('trip.store') }}" enctype="multipart/form-data">
                         @csrf
-
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                             <!-- Form fields for Trip -->
                             <div>
@@ -86,12 +85,18 @@
 
                             <div>
                                 <x-label for="booking_status" value="Booking Status" />
-                                <select name="booking_status" id="booking_status" class="block mt-1 w-full">
+                                <select name="booking_status" id="booking_status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full">
                                     <option value="Pending" {{ old('booking_status') == 'Pending' ? 'selected' : '' }}>
                                         Pending</option>
                                     <option value="Booked" {{ old('booking_status') == 'Booked' ? 'selected' : '' }}>
                                         Booked</option>
                                 </select>
+                            </div>
+
+
+                            <div>
+                                <x-label for="path_attachment_create" value="Attachment" />
+                                <x-input id="path_attachment_create" class="block mt-1 w-full" type="file" name="path_attachment_create" />
                             </div>
                         </div>
 

@@ -6,19 +6,107 @@
             </h2>
             <div class="flex items-center">
                 <a href="{{ route('trip.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-white text-indigo-600 border border-indigo-600 text-xs font-semibold uppercase rounded-md hover:bg-indigo-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 mr-2">
+                    class="inline-flex items-center px-4 py-2 bg-blue-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                         class="w-4 h-4 mr-2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Add New Trip
                 </a>
-                @include('back-navigation')
+                <a href="javascript:;" id="toggle"
+                   class="flex items-center px-4 py-1.5 text-gray-600 bg-white border rounded-lg focus:outline-none hover:bg-gray-100 transition-colors duration-200 transform dark:text-gray-200 dark:border-gray-200  dark:hover:bg-gray-700 ml-2"
+                   title="Members List">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                </a>
+
+
             </div>
         </div>
     </x-slot>
+    <div class="max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 print:hidden mt-2" style="display: none" id="filters">
+        <div class="rounded-xl p-4 bg-white shadow-lg">
+            <form method="GET" action="{{ route('trip.index') }}">
+                <div class="mt-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <x-label for="id" value="{{ __('ID') }}" />
+                        <x-input id="id" class="block mt-1 w-full" type="text" name="filter[id]" value="{{ request('filter.id') }}" />
+                    </div>
 
-    <div class="py-6">
+                    <div>
+                        <x-label for="trip_name" value="{{ __('Trip Name') }}" />
+                        <x-input id="trip_name" class="block mt-1 w-full" type="text" name="filter[trip_name]" value="{{ request('filter.trip_name') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="guest_name" value="{{ __('Guest Name') }}" />
+                        <x-input id="guest_name" class="block mt-1 w-full" type="text" name="filter[guest_name]" value="{{ request('filter.guest_name') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="guest_email" value="{{ __('Guest Email') }}" />
+                        <x-input id="guest_email" class="block mt-1 w-full" type="email" name="filter[guest_email]" value="{{ request('filter.guest_email') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="check_in_date" value="{{ __('Check-in Date') }}" />
+                        <x-input id="check_in_date" class="block mt-1 w-full" type="date" name="filter[check_in_date]" value="{{ request('filter.check_in_date') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="booking_date" value="{{ __('Booking Date') }}" />
+                        <x-input id="booking_date" class="block mt-1 w-full" type="date" name="filter[booking_date]" value="{{ request('filter.booking_date') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="total_cost_min" value="{{ __('Total Cost (Min)') }}" />
+                        <x-input id="total_cost_min" class="block mt-1 w-full" type="number" step="0.01" name="filter[total_cost][0]" value="{{ request('filter.total_cost.0') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="total_cost_max" value="{{ __('Total Cost (Max)') }}" />
+                        <x-input id="total_cost_max" class="block mt-1 w-full" type="number" step="0.01" name="filter[total_cost][1]" value="{{ request('filter.total_cost.1') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="agent_name" value="{{ __('Agent Name') }}" />
+                        <x-input id="agent_name" class="block mt-1 w-full" type="text" name="filter[agent_name]" value="{{ request('filter.agent_name') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="booking_status" value="Booking Status" class="block w-full" />
+                        <select name="filter[booking_status]" id="booking_status" class="border-gray-300 mt-1 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                            <option value="">All</option>
+                            <option value="Pending" {{ request('filter.booking_status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Booked" {{ request('filter.booking_status') == 'Booked' ? 'selected' : '' }}>Booked</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <x-label for="sort" value="{{ __('Sort By') }}" />
+                        <select name="sort" id="sort" class="border-gray-300 mt-1 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                            <option value="">None</option>
+                            <option value="trip_name" {{ request('sort') == 'trip_name' ? 'selected' : '' }}>Trip Name</option>
+                            <option value="check_in_date" {{ request('sort') == 'check_in_date' ? 'selected' : '' }}>Check-in Date</option>
+                            <option value="booking_date" {{ request('sort') == 'booking_date' ? 'selected' : '' }}>Booking Date</option>
+                            <option value="total_cost" {{ request('sort') == 'total_cost' ? 'selected' : '' }}>Total Cost</option>
+                            <option value="-total_cost" {{ request('sort') == '-total_cost' ? 'selected' : '' }}>Total Cost (Descending)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <x-button class="bg-indigo-500 text-white">
+                        {{ __('Apply Filters') }}
+                    </x-button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="py-3">
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
                 <x-status-message class="mb-4" />
@@ -107,4 +195,22 @@
             </div>
         </div>
     </div>
+    @push('modals')
+        <script>
+
+            const targetDiv = document.getElementById("filters");
+            const btn = document.getElementById("toggle");
+            btn.onclick = function () {
+                if (targetDiv.style.display !== "none") {
+                    targetDiv.style.display = "none";
+                } else {
+                    targetDiv.style.display = "block";
+                }
+            };
+
+            function redirectToLink(url) {
+                window.location.href = url;
+            }
+        </script>
+    @endpush
 </x-app-layout>

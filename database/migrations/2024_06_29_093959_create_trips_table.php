@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('profit', 10, 2)->nullable();
             $table->string('agent_name')->nullable();
             $table->enum('booking_status', ['Pending', 'Booked'])->nullable();
+            $table->string('path_attachment');
             $table->timestamps();
         });
     }

@@ -1,8 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight inline">
             {{ $trip->trip_name }} Details
         </h2>
+
+        <div class="flex justify-center items-center float-right">
+
+            <a href="{{ route('trip.index') }}"
+               class="inline-flex items-center px-4 py-2 bg-blue-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Back
+            </a>
+
+
+        </div>
     </x-slot>
 
     <div class="py-6">
@@ -31,12 +41,19 @@
                                         Not specified
                                     @endif
                                 </p>
-                                <p><strong>Total Cost:</strong> ${{ number_format($trip->total_cost, 2) }}</p>
+                                <p><strong>Total Cost:</strong> Rs.{{ number_format($trip->total_cost, 2) }}</p>
                                 <p><strong>Total Expenses:</strong> ${{ number_format($trip->total_expenses, 2) }}</p>
-                                <p><strong>Profit:</strong> ${{ number_format($trip->profit, 2) }}</p>
+                                <p><strong>Profit:</strong> Rs.{{ number_format($trip->profit, 2) }}</p>
                                 <p><strong>Agent Name:</strong> {{ $trip->agent_name }}</p>
                                 <p><strong>Booking Status:</strong> <span
                                         class="text-green-600">{{ $trip->booking_status }}</span></p>
+                                @if(!empty($trip->path_attachment))
+                                    <p><strong>Attachment:</strong> <span
+                                                class="text-green-600">
+                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($trip->path_attachment) }}" target="_blank">View Attachment</a>
+                                    </span></p>
+                                @endif
+
                             </div>
                         </div>
                         <div>

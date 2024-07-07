@@ -20,7 +20,8 @@ class Trip extends Model
         'total_expenses',
         'profit',
         'agent_name',
-        'booking_status'
+        'booking_status',
+        'path_attachment'
     ];
     // Trip.php (Model)
 public function comments()

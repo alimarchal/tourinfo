@@ -6,15 +6,48 @@ use App\Http\Requests\StoreTripRequest;
 use App\Http\Requests\UpdateTripRequest;
 use App\Models\Trip;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TripController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $trips = Trip::all();
+        $trips = QueryBuilder::for(Trip::class)
+            ->allowedFilters([
+                AllowedFilter::exact('id'),
+                'trip_name',
+                'guest_name',
+                'guest_email',
+                'guest_contact',
+                AllowedFilter::exact('check_in_date'),
+                AllowedFilter::exact('booking_date'),
+                AllowedFilter::callback('total_cost', function ($query, $value) {
+                    $query->where('total_cost', '>=', $value[0] ?? 0)
+                        ->where('total_cost', '<=', $value[1] ?? PHP_INT_MAX);
+                }),
+                AllowedFilter::callback('total_expenses', function ($query, $value) {
+                    $query->where('total_expenses', '>=', $value[0] ?? 0)
+                        ->where('total_expenses', '<=', $value[1] ?? PHP_INT_MAX);
+                }),
+                AllowedFilter::callback('profit', function ($query, $value) {
+                    $query->where('profit', '>=', $value[0] ?? 0)
+                        ->where('profit', '<=', $value[1] ?? PHP_INT_MAX);
+                }),
+                'agent_name',
+                AllowedFilter::exact('booking_status'),
+            ])
+            ->allowedSorts([
+                'id', 'trip_name', 'guest_name', 'check_in_date', 'booking_date',
+                'total_cost', 'total_expenses', 'profit', 'agent_name', 'booking_status'
+            ])
+            ->paginate($request->input('per_page', 15))
+            ->appends($request->query());
+
         return view('trip.index', compact('trips'));
     }
 
@@ -35,6 +68,11 @@ class TripController extends Controller
 
         DB::beginTransaction();
         try {
+            if ($request->hasFile('path_attachment_create')) {
+                $file_path = $request->file('path_attachment_create')->store('path_attachment_create', 'public');
+                $request->merge(['path_attachment' => $file_path]);
+            }
+
             $trip = Trip::create($request->all());
             DB::commit();
             session()->flash('success', 'Trip created successfully.');
