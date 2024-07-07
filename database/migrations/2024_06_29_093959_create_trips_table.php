@@ -24,7 +24,7 @@ return new class extends Migration
             $table->decimal('profit', 10, 2);
             $table->string('agent_name');
             $table->enum('booking_status', ['Pending', 'Booked']);
-            $table->string('attachment_path');
+            $table->string('path_attachment');
             $table->timestamps();
         });
     }
