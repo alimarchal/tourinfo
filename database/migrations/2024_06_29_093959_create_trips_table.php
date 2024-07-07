@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id(); // Primary Key
-            $table->string('trip_name');
-            $table->string('guest_name');
-            $table->string('guest_email');
-            $table->string('guest_contact');
-            $table->date('check_in_date');
-            $table->date('booking_date');
-            $table->decimal('total_cost', 10, 2);
-            $table->decimal('total_expenses', 10, 2);
-            $table->decimal('profit', 10, 2);
-            $table->string('agent_name');
-            $table->enum('booking_status', ['Pending', 'Booked']);
+            $table->string('trip_name')->nullable();
+            $table->string('guest_name')->nullable();
+            $table->string('guest_email')->nullable();
+            $table->string('guest_contact')->nullable();
+            $table->date('check_in_date')->nullable();
+            $table->date('booking_date')->nullable();
+            $table->decimal('total_cost', 10, 2)->nullable();
+            $table->decimal('total_expenses', 10, 2)->nullable();
+            $table->decimal('profit', 10, 2)->nullable();
+            $table->string('agent_name')->nullable();
+            $table->enum('booking_status', ['Pending', 'Booked'])->nullable();
             $table->timestamps();
         });
     }

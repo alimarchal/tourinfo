@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTripRequest;
 use App\Http\Requests\UpdateTripRequest;
 use App\Models\Trip;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TripController extends Controller
@@ -13,36 +12,9 @@ class TripController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        // Initialize the query builder
-        $query = Trip::query();
-
-        // Apply filters based on search and other parameters
-        if ($request->has('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('trip_name', 'like', '%' . $search . '%')
-                  ->orWhere('guest_name', 'like', '%' . $search . '%');
-            });
-        }
-
-        if ($request->has('filter_trip_name')) {
-            $query->where('trip_name', 'like', '%' . $request->input('filter_trip_name') . '%');
-        }
-
-        if ($request->has('filter_guest_name')) {
-            $query->where('guest_name', 'like', '%' . $request->input('filter_guest_name') . '%');
-        }
-
-        if ($request->has('filter_booking_status')) {
-            $query->where('booking_status', $request->input('filter_booking_status'));
-        }
-
-        // Fetch the filtered trips
-        $trips = $query->get();
-
-        // Return the view with filtered trips
+        $trips = Trip::all();
         return view('trip.index', compact('trips'));
     }
 
