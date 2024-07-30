@@ -45,7 +45,7 @@ class TripController extends Controller
                 'id', 'trip_name', 'guest_name', 'check_in_date', 'booking_date',
                 'total_cost', 'total_expenses', 'profit', 'agent_name', 'booking_status'
             ])
-            ->paginate($request->input('per_page', 15))
+            ->paginate($request->input('per_page', 50))
             ->appends($request->query());
 
         return view('trip.index', compact('trips'));
