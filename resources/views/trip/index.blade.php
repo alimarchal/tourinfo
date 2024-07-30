@@ -27,7 +27,7 @@
             </div>
         </div>
     </x-slot>
-    <div class="max-w-7xl mx-auto px-4 sm:px-2 lg:px-8 print:hidden mt-2" style="display: none" id="filters">
+    <div class="max-w-8xl mx-auto px-4 sm:px-2 lg:px-8 print:hidden mt-2" style="display: none" id="filters">
         <div class="rounded-xl p-4 bg-white shadow-lg">
             <form method="GET" action="{{ route('trip.index') }}">
                 <div class="mt-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -51,15 +51,37 @@
                         <x-input id="guest_email" class="block mt-1 w-full" type="email" name="filter[guest_email]" value="{{ request('filter.guest_email') }}" />
                     </div>
 
+
+
                     <div>
-                        <x-label for="check_in_date" value="{{ __('Check-in Date') }}" />
-                        <x-input id="check_in_date" class="block mt-1 w-full" type="date" name="filter[check_in_date]" value="{{ request('filter.check_in_date') }}" />
+                        <x-label for="check_in_date_from" value="{{ __('Check-in Date From') }}" />
+                        <x-input id="check_in_date_from" class="block mt-1 w-full" type="date" name="filter[check_in_date][from]" value="{{ request('filter.check_in_date.from') }}" />
                     </div>
 
                     <div>
-                        <x-label for="booking_date" value="{{ __('Booking Date') }}" />
-                        <x-input id="booking_date" class="block mt-1 w-full" type="date" name="filter[booking_date]" value="{{ request('filter.booking_date') }}" />
+                        <x-label for="check_in_date_to" value="{{ __('Check-in Date To') }}" />
+                        <x-input id="check_in_date_to" class="block mt-1 w-full" type="date" name="filter[check_in_date][to]" value="{{ request('filter.check_in_date.to') }}" />
                     </div>
+
+                    <div>
+                        <x-label for="booking_date_from" value="{{ __('Booking Date From') }}" />
+                        <x-input id="booking_date_from" class="block mt-1 w-full" type="date" name="filter[booking_date][from]" value="{{ request('filter.booking_date.from') }}" />
+                    </div>
+
+                    <div>
+                        <x-label for="booking_date_to" value="{{ __('Booking Date To') }}" />
+                        <x-input id="booking_date_to" class="block mt-1 w-full" type="date" name="filter[booking_date][to]" value="{{ request('filter.booking_date.to') }}" />
+                    </div>
+
+{{--                    <div>--}}
+{{--                        <x-label for="check_in_date" value="{{ __('Check-in Date') }}" />--}}
+{{--                        <x-input id="check_in_date" class="block mt-1 w-full" type="date" name="filter[check_in_date]" value="{{ request('filter.check_in_date') }}" />--}}
+{{--                    </div>--}}
+
+{{--                    <div>--}}
+{{--                        <x-label for="booking_date" value="{{ __('Booking Date') }}" />--}}
+{{--                        <x-input id="booking_date" class="block mt-1 w-full" type="date" name="filter[booking_date]" value="{{ request('filter.booking_date') }}" />--}}
+{{--                    </div>--}}
 
                     <div>
                         <x-label for="total_cost_min" value="{{ __('Total Cost (Min)') }}" />
@@ -106,96 +128,132 @@
             </form>
         </div>
     </div>
-    <div class="py-3">
-        <div class="max-w-8xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <x-status-message class="mb-4" />
-                <div class="pb-0 lg:pb-0 bg-white dark:bg-gray-800 dark:bg-gradient-to-bl dark:from-gray-700/50 dark:via-transparent border-b border-gray-200 dark:border-gray-700">
 
-                    <div class="relative overflow-x-auto">
-                        @if ($trips->isNotEmpty())
-                            <table class="min-w-max w-full table-auto" style="font-size: 12px;">
-                                <thead>
-                                    <tr class="bg-gray-800 text-white uppercase text-sm">
-                                        <th class="py-2 px-1 text-center">ID</th>
-                                        <th class="py-2 px-1 text-center">Trip Name</th>
-                                        <th class="py-2 px-1 text-center">Guest Name</th>
-                                        <th class="py-2 px-1 text-center">Guest Contact</th>
-                                        <th class="py-2 px-1 text-center">Check-in Date</th>
-                                        <th class="py-2 px-1 text-center">Booking Date</th>
-                                        <th class="py-2 px-1 text-center">Total Cost</th>
-                                        <th class="py-2 px-1 text-center">Total Expenses</th>
-                                        <th class="py-2 px-1 text-center">Profit</th>
-                                        <th class="py-2 px-1 text-center">Agent Name</th>
-                                        <th class="py-2 px-1 text-center">Booking Status</th>
-                                        <th class="py-2 px-1 text-center">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-gray-700 text-sm">
-                                    @foreach ($trips as $trip)
-                                        <tr
-                                            class="border-b border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                                            <td class="py-1 px-1 text-black text-center">{{ $loop->iteration }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->trip_name }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->guest_name }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->guest_contact }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->check_in_date }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->booking_date }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->total_cost }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->total_expenses }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->profit }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->agent_name }}</td>
-                                            <td class="py-1 px-1 text-black text-center">{{ $trip->booking_status }}</td>
-                                            <td class="py-1 px-1 text-black text-center">
+
+
+    <div class="py-6">
+        <div class="max-w-8xl mx-auto sm:px-6 lg:px-8  print:shadow-none">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg print:shadow-none">
+                <x-status-message class="ml-4 mt-4"/>
+                <x-validation-errors class="ml-4 mt-4"/>
+                @if ($trips->isNotEmpty())
+                    <div class="relative overflow-x-auto rounded-lg ">
+                        <table class="min-w-max w-full table-auto text-sm">
+                            <thead>
+                            <tr class="text-white bg-blue-950  text-sm">
+                                <th class="py-0.5 px-1 text-center">ID</th>
+                                <th class="py-0.5 px-1 text-center">Trip Name</th>
+                                <th class="py-0.5 px-1 text-center">Guest Name</th>
+                                <th class="py-0.5 px-1 text-center">Guest Contact</th>
+                                <th class="py-0.5 px-1 text-center">Check-in Date</th>
+                                <th class="py-0.5 px-1 text-center">Booking Date</th>
+                                <th class="py-0.5 px-1 text-center">Total Cost</th>
+                                <th class="py-0.5 px-1 text-center">Total Expenses</th>
+                                <th class="py-0.5 px-1 text-center">Profit</th>
+                                <th class="py-0.5 px-1 text-center">Agent Name</th>
+                                <th class="py-0.5 px-1 text-center">Booking Status</th>
+                                <th class="py-0.5 px-1 text-center print:hidden">Actions</th>
+                            </tr>
+                            </thead>
+                            @foreach ($trips as $trip)
+                                <tbody class="text-black ext-sm leading-normal font-extrabold">
+                                        <tr class="border-b border-gray-200 hover:bg-gray-100 text-sm">
+                                             <td class="py-0.5 px-1 text-center">{{ $loop->iteration }}</td>
+                                             <td class="py-0.5 px-1 text-left">{{ \Illuminate\Support\Str::limit($trip->trip_name,15) }}</td>
+                                             <td class="py-0.5 px-1 text-center">{{ \Illuminate\Support\Str::limit($trip->guest_name,15) }}</td>
+                                             <td class="py-0.5 px-1 text-center">
+                                                 <a href="tel:{{ $trip->guest_contact }}" class="hover:underline text-blue-700">{{ $trip->guest_contact }}</a>
+                                             </td>
+                                             <td class="py-0.5 px-1 text-center">{{ \Carbon\Carbon::parse($trip->check_in_date)->format('d/m/y') }}</td>
+                                             <td class="py-0.5 px-1 text-center">{{ \Carbon\Carbon::parse($trip->booking_date)->format('d/m/y') }}</td>
+                                             <td class="py-0.5 px-1 text-right">{{ $trip->total_cost }}</td>
+                                             <td class="py-0.5 px-1 text-right">{{ $trip->total_expenses }}</td>
+                                             <td class="py-0.5 px-1 text-right">{{ $trip->profit }}</td>
+                                             <td class="py-0.5 px-1 text-center">{{ $trip->agent_name }}</td>
+                                             <td class="py-0.5 px-1 text-center">{{ $trip->booking_status }}</td>
+                                            <td class="py-0.5 px-1 text-center">
                                                 <a href="{{ route('trip.show', $trip->id) }}"
-                                                    class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
-                                                    title="View">
+                                                   class="inline-flex items-center px-0.5 py-1 text-indigo-600 hover:text-indigo-900"
+                                                   title="View">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                                         viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M12 14v5m0-17v5m-9-2h5m12 0h-5m-6 10l3-3m2 3l3-3" />
+                                                              d="M12 14v5m0-17v5m-9-2h5m12 0h-5m-6 10l3-3m2 3l3-3" />
                                                     </svg>
                                                 </a>
                                                 <a href="{{ route('trip.edit', $trip->id) }}"
-                                                    class="inline-flex items-center px-2 py-2 text-indigo-600 hover:text-indigo-900"
-                                                    title="Edit">
+                                                   class="inline-flex items-center px-0.5 py-1 text-indigo-600 hover:text-indigo-900"
+                                                   title="Edit">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                                         viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                     </svg>
                                                 </a>
                                                 <form action="{{ route('trip.destroy', $trip->id) }}" method="post"
-                                                    class="inline-block"
-                                                    onsubmit="return confirm('Do you really want to delete the record?');">
+                                                      class="inline-block"
+                                                      onsubmit="return confirm('Do you really want to delete the record?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                        class="inline-flex items-center px-2 py-2 text-red-600 hover:text-red-900"
-                                                        title="Delete">
+                                                            class="inline-flex items-center px-0.5 py-1 text-red-600 hover:text-red-900"
+                                                            title="Delete">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                                                             viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
-                                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                         </svg>
                                                     </button>
                                                 </form>
                                             </td>
                                         </tr>
-                                    @endforeach
                                 </tbody>
-                            </table>
-                        @else
-                            <p class="p-6">No trips found.</p>
-                        @endif
+                            @endforeach
+                        </table>
                     </div>
-                </div>
+                @else
+                    <p class="p-6">No trips found.</p>
+                @endif
             </div>
         </div>
     </div>
+
     @push('modals')
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.querySelector('form');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const checkInFrom = document.getElementById('check_in_date_from').value;
+                    const checkInTo = document.getElementById('check_in_date_to').value;
+                    const bookingFrom = document.getElementById('booking_date_from').value;
+                    const bookingTo = document.getElementById('booking_date_to').value;
+
+                    if (checkInFrom && checkInTo) {
+                        const checkInDateInput = document.createElement('input');
+                        checkInDateInput.type = 'hidden';
+                        checkInDateInput.name = 'filter[check_in_date]';
+                        checkInDateInput.value = `${checkInFrom},${checkInTo}`;
+                        form.appendChild(checkInDateInput);
+                    }
+
+                    if (bookingFrom && bookingTo) {
+                        const bookingDateInput = document.createElement('input');
+                        bookingDateInput.type = 'hidden';
+                        bookingDateInput.name = 'filter[booking_date]';
+                        bookingDateInput.value = `${bookingFrom},${bookingTo}`;
+                        form.appendChild(bookingDateInput);
+                    }
+
+                    form.submit();
+                });
+            });
+        </script>
+
         <script>
 
             const targetDiv = document.getElementById("filters");

@@ -17,6 +17,7 @@ class TripController extends Controller
      */
     public function index(Request $request)
     {
+
         $trips = QueryBuilder::for(Trip::class)
             ->allowedFilters([
                 AllowedFilter::exact('id'),
@@ -24,8 +25,32 @@ class TripController extends Controller
                 'guest_name',
                 'guest_email',
                 'guest_contact',
-                AllowedFilter::exact('check_in_date'),
-                AllowedFilter::exact('booking_date'),
+                'check_in_date_from',
+                'check_in_date_to',
+                'booking_date_from',
+                'booking_date_to',
+                AllowedFilter::callback('check_in_date', function ($query, $value) {
+                    $from = $value['from'] ?? null;
+                    $to = $value['to'] ?? null;
+                    if ($from && $to) {
+                        $query->whereBetween('check_in_date', [$from, $to]);
+                    } elseif ($from) {
+                        $query->where('check_in_date', '>=', $from);
+                    } elseif ($to) {
+                        $query->where('check_in_date', '<=', $to);
+                    }
+                }),
+                AllowedFilter::callback('booking_date', function ($query, $value) {
+                    $from = $value['from'] ?? null;
+                    $to = $value['to'] ?? null;
+                    if ($from && $to) {
+                        $query->whereBetween('booking_date', [$from, $to]);
+                    } elseif ($from) {
+                        $query->where('booking_date', '>=', $from);
+                    } elseif ($to) {
+                        $query->where('booking_date', '<=', $to);
+                    }
+                }),
                 AllowedFilter::callback('total_cost', function ($query, $value) {
                     $query->where('total_cost', '>=', $value[0] ?? 0)
                         ->where('total_cost', '<=', $value[1] ?? PHP_INT_MAX);
@@ -47,6 +72,8 @@ class TripController extends Controller
             ])
             ->paginate($request->input('per_page', 50))
             ->appends($request->query());
+
+
 
         return view('trip.index', compact('trips'));
     }
