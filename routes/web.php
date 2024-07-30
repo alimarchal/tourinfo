@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TripController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
@@ -10,7 +11,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
-    Route::get('/dashboard', function () {return view('dashboard');})->name('dashboard');
+
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('/dashboard', 'dashboard')->name('dashboard');
+    });
 
     // Trip Information
     Route::controller(TripController::class)->group(function () {
