@@ -103,13 +103,15 @@
                     console.error('Error rendering monthly chart:', error);
                 }
 
-                // Agent-wise report chart
+// Agent-wise report chart
                 var agentOptions = {
                     series: [{
                         name: 'Total Sales',
+                        type: 'column',
                         data: @json($agentReport->pluck('total_sales'))
                     }, {
                         name: 'Total Profit',
+                        type: 'column',
                         data: @json($agentReport->pluck('total_profit'))
                     }, {
                         name: 'Total Trips',
@@ -117,12 +119,25 @@
                         data: @json($agentReport->pluck('total_trips'))
                     }],
                     chart: {
-                        type: 'bar',
                         height: 500,
+                        type: 'line',
                         stacked: false,
                         fontFamily: 'Inter, sans-serif',
                         toolbar: {
                             show: false
+                        },
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 800,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150
+                            },
+                            dynamicAnimation: {
+                                enabled: true,
+                                speed: 350
+                            }
                         }
                     },
                     plotOptions: {
@@ -137,9 +152,8 @@
                         enabled: false
                     },
                     stroke: {
-                        show: true,
-                        width: [0, 0, 3],
-                        colors: ['transparent', 'transparent', '#FEB019']
+                        width: [0, 0, 4],
+                        curve: 'smooth'
                     },
                     xaxis: {
                         categories: @json($agentReport->pluck('agent_name')),
@@ -148,8 +162,15 @@
                             rotateAlways: true,
                             style: {
                                 fontSize: '12px',
-                                colors: '#9e9e9e'
+                                colors: '#718096',
+                                fontWeight: 500
                             }
+                        },
+                        axisBorder: {
+                            show: false
+                        },
+                        axisTicks: {
+                            show: false
                         }
                     },
                     yaxis: [
@@ -157,7 +178,9 @@
                             title: {
                                 text: 'Amount (PKR)',
                                 style: {
-                                    color: '#9e9e9e'
+                                    color: '#718096',
+                                    fontSize: '14px',
+                                    fontWeight: 500
                                 }
                             },
                             labels: {
@@ -165,7 +188,7 @@
                                     return "PKR " + val.toFixed(0);
                                 },
                                 style: {
-                                    colors: '#9e9e9e',
+                                    colors: '#718096',
                                     fontSize: '12px'
                                 }
                             }
@@ -175,7 +198,9 @@
                             title: {
                                 text: 'Number of Trips',
                                 style: {
-                                    color: '#9e9e9e'
+                                    color: '#718096',
+                                    fontSize: '14px',
+                                    fontWeight: 500
                                 }
                             },
                             labels: {
@@ -183,41 +208,85 @@
                                     return val.toFixed(0);
                                 },
                                 style: {
-                                    colors: '#9e9e9e',
+                                    colors: '#718096',
                                     fontSize: '12px'
                                 }
                             }
                         }
                     ],
                     tooltip: {
+                        shared: true,
+                        intersect: false,
                         y: {
                             formatter: function(val, { seriesIndex }) {
                                 if (seriesIndex === 2) return val;
                                 return "PKR " + parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                             }
+                        },
+                        theme: 'dark',
+                        style: {
+                            fontSize: '12px'
                         }
                     },
                     legend: {
                         position: 'top',
                         horizontalAlign: 'left',
-                        offsetY: -10
+                        offsetY: -10,
+                        itemMargin: {
+                            horizontal: 10
+                        },
+                        labels: {
+                            colors: '#4A5568'
+                        }
                     },
                     fill: {
-                        opacity: [0.85, 0.85, 1]
+                        opacity: [0.85, 0.85, 1],
+                        gradient: {
+                            inverseColors: false,
+                            shade: 'light',
+                            type: "vertical",
+                            opacityFrom: 0.85,
+                            opacityTo: 0.55,
+                            stops: [0, 100, 100, 100]
+                        }
                     },
-                    colors: ['#008FFB', '#00E396', '#FEB019'],
+                    colors: ['#4299E1', '#48BB78', '#ECC94B'],
                     title: {
                         text: 'Agent Performance Overview',
                         align: 'left',
                         style: {
-                            fontSize: '18px',
+                            fontSize: '20px',
                             fontWeight: 'bold',
-                            color: '#263238'
+                            color: '#2D3748'
                         }
                     },
                     grid: {
-                        borderColor: '#e0e0e0',
+                        borderColor: '#E2E8F0',
                         strokeDashArray: 5,
+                        xaxis: {
+                            lines: {
+                                show: true
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: true
+                            }
+                        },
+                        padding: {
+                            top: 0,
+                            right: 0,
+                            bottom: 0,
+                            left: 10
+                        }
+                    },
+                    markers: {
+                        size: 6,
+                        strokeColors: '#fff',
+                        strokeWidth: 2,
+                        hover: {
+                            size: 8
+                        }
                     }
                 };
 
