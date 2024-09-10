@@ -155,6 +155,20 @@
                                 <th class="py-0.5 px-1 text-center print:hidden">Actions</th>
                             </tr>
                             </thead>
+                            <tfoot>
+                                <tr class="text-white bg-blue-950  text-sm">
+                                <!-- Add empty columns before the "Total" column -->
+                                <th class="py-0.5 px-1 text-left" colspan="5"></th>
+                                <th class="py-0.5 px-1 text-center">Total</th>
+                                <th class="py-0.5 px-1 text-right">{{ number_format($trips->sum('total_cost') , 2) }}</th>
+                                <th class="py-0.5 px-1 text-right">{{number_format ($trips->sum('total_expenses'), 2 ) }}</th>
+                                <th class="py-0.5 px-1 text-right">{{ number_format($trips->sum('profit'), 2) }}</th>
+
+                                <th class="py-0.5 px-1 text-center"></th>
+                                <th class="py-0.5 px-1 text-center"></th>\
+
+                            </tfoot>
+
                             @foreach ($trips as $trip)
                                 <tbody class="text-black ext-sm leading-normal font-extrabold">
                                         <tr class="border-b border-gray-200 hover:bg-gray-100 text-sm">
