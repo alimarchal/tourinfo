@@ -73,7 +73,7 @@ class TripController extends Controller
         // Calculate sums based on the filtered query
         $sums = $tripsQuery->clone()->selectRaw('SUM(total_cost) as total_cost_sum, SUM(total_expenses) as total_expenses_sum, SUM(profit) as profit_sum')->first();
 
-        $trips = $tripsQuery->paginate($request->input('per_page', 50))
+        $trips = $tripsQuery->latest()->paginate($request->input('per_page', 50))
             ->appends($request->query());
 
         return view('trip.index', compact('trips', 'sums'));

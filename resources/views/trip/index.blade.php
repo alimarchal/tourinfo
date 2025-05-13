@@ -52,26 +52,24 @@
                     </div>
 
 
-
-                    <div>
-                        <x-label for="check_in_date_from" value="{{ __('Check-in Date From') }}" />
-                        <x-input id="check_in_date_from" class="block mt-1 w-full" type="date" name="filter[check_in_date][from]" value="{{ request('filter.check_in_date.from') }}" />
+                    <div class="col-span-2">
+                        <x-label for="check_in_date_range" value="{{ __('Check-in Date Range') }}" />
+                        <input id="check_in_date_range" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" type="text" placeholder="Select date range" readonly />
+                        <input type="hidden" id="check_in_date_from" name="filter[check_in_date][from]" value="{{ request('filter.check_in_date.from') }}">
+                        <input type="hidden" id="check_in_date_to" name="filter[check_in_date][to]" value="{{ request('filter.check_in_date.to') }}">
                     </div>
 
-                    <div>
-                        <x-label for="check_in_date_to" value="{{ __('Check-in Date To') }}" />
-                        <x-input id="check_in_date_to" class="block mt-1 w-full" type="date" name="filter[check_in_date][to]" value="{{ request('filter.check_in_date.to') }}" />
-                    </div>
 
-                    <div>
-                        <x-label for="booking_date_from" value="{{ __('Booking Date From') }}" />
-                        <x-input id="booking_date_from" class="block mt-1 w-full" type="date" name="filter[booking_date][from]" value="{{ request('filter.booking_date.from') }}" />
-                    </div>
 
-                    <div>
-                        <x-label for="booking_date_to" value="{{ __('Booking Date To') }}" />
-                        <x-input id="booking_date_to" class="block mt-1 w-full" type="date" name="filter[booking_date][to]" value="{{ request('filter.booking_date.to') }}" />
-                    </div>
+                    <!-- Replace the booking date from/to fields with this -->
+<div class="col-span-2">
+    <x-label for="booking_date_range" value="{{ __('Booking Date Range') }}" />
+    <input id="booking_date_range" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" type="text" placeholder="Select date range" readonly />
+    <input type="hidden" id="booking_date_from" name="filter[booking_date][from]" value="{{ request('filter.booking_date.from') }}">
+    <input type="hidden" id="booking_date_to" name="filter[booking_date][to]" value="{{ request('filter.booking_date.to') }}">
+</div>
+
+
 
                     {{--                    <div>--}}
                     {{--                        <x-label for="check_in_date" value="{{ __('Check-in Date') }}" />--}}
@@ -234,6 +232,93 @@
     </div>
 
     @push('modals')
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize flatpickr date range picker
+        const dateRangePicker = flatpickr("#check_in_date_range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            disableMobile: "true",
+            onClose: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+                    
+                    document.getElementById('check_in_date_from').value = startDate;
+                    document.getElementById('check_in_date_to').value = endDate;
+                }
+            }
+        });
+
+        // Pre-populate date range picker if values exist
+        const fromDate = document.getElementById('check_in_date_from').value;
+        const toDate = document.getElementById('check_in_date_to').value;
+        
+        if (fromDate && toDate) {
+            dateRangePicker.setDate([fromDate, toDate]);
+        }
+        
+        // Update the existing form submit event handler
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const checkInFrom = document.getElementById('check_in_date_from').value;
+            const checkInTo = document.getElementById('check_in_date_to').value;
+            const bookingFrom = document.getElementById('booking_date_from').value;
+            const bookingTo = document.getElementById('booking_date_to').value;
+
+            if (checkInFrom && checkInTo) {
+                const checkInDateInput = document.createElement('input');
+                checkInDateInput.type = 'hidden';
+                checkInDateInput.name = 'filter[check_in_date]';
+                checkInDateInput.value = `${checkInFrom},${checkInTo}`;
+                form.appendChild(checkInDateInput);
+            }
+
+            if (bookingFrom && bookingTo) {
+                const bookingDateInput = document.createElement('input');
+                bookingDateInput.type = 'hidden';
+                bookingDateInput.name = 'filter[booking_date]';
+                bookingDateInput.value = `${bookingFrom},${bookingTo}`;
+                form.appendChild(bookingDateInput);
+            }
+
+            form.submit();
+        });
+
+
+
+        const bookingDateRangePicker = flatpickr("#booking_date_range", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    disableMobile: "true",
+    onClose: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length === 2) {
+            const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+            const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+            
+            document.getElementById('booking_date_from').value = startDate;
+            document.getElementById('booking_date_to').value = endDate;
+        }
+    }
+});
+
+// Pre-populate booking date range picker if values exist
+const bookingFromDate = document.getElementById('booking_date_from').value;
+const bookingToDate = document.getElementById('booking_date_to').value;
+
+if (bookingFromDate && bookingToDate) {
+    bookingDateRangePicker.setDate([bookingFromDate, bookingToDate]);
+}
+
+    });
+</script>
+
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {
