@@ -17,8 +17,7 @@ class TripController extends Controller
      */
     public function index(Request $request)
     {
-
-        $trips = QueryBuilder::for(Trip::class)
+        $tripsQuery = QueryBuilder::for(Trip::class)
             ->allowedFilters([
                 AllowedFilter::exact('id'),
                 'trip_name',
@@ -69,13 +68,15 @@ class TripController extends Controller
             ->allowedSorts([
                 'id', 'trip_name', 'guest_name', 'check_in_date', 'booking_date',
                 'total_cost', 'total_expenses', 'profit', 'agent_name', 'booking_status'
-            ])
-            ->paginate($request->input('per_page', 50))
+            ]);
+
+        // Calculate sums based on the filtered query
+        $sums = $tripsQuery->clone()->selectRaw('SUM(total_cost) as total_cost_sum, SUM(total_expenses) as total_expenses_sum, SUM(profit) as profit_sum')->first();
+
+        $trips = $tripsQuery->paginate($request->input('per_page', 50))
             ->appends($request->query());
 
-
-
-        return view('trip.index', compact('trips'));
+        return view('trip.index', compact('trips', 'sums'));
     }
 
     /**
