@@ -106,6 +106,15 @@
                     </div>
 
                     <div>
+                        <x-label for="tour_type" value="Tour Type" class="block w-full" />
+                        <select name="filter[tour_type]" id="tour_type" class="border-gray-300 mt-1 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
+                            <option value="">All</option>
+                            <option value="Domestic" {{ request('filter.tour_type') == 'Domestic' ? 'selected' : '' }}>Domestic</option>
+                            <option value="International" {{ request('filter.tour_type') == 'International' ? 'selected' : '' }}>International</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <x-label for="sort" value="{{ __('Sort By') }}" />
                         <select name="sort" id="sort" class="border-gray-300 mt-1 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full">
                             <option value="">None</option>
@@ -135,97 +144,180 @@
                 <x-status-message class="ml-4 mt-4"/>
                 <x-validation-errors class="ml-4 mt-4"/>
                 @if ($trips->isNotEmpty())
-                    <div class="relative overflow-x-auto rounded-lg ">
-                        <table class="min-w-max w-full table-auto text-sm">
-                            <thead>
-                            <tr class="text-white bg-blue-950  text-sm">
-                                <th class="py-0.5 px-1 text-center">ID</th>
-                                <th class="py-0.5 px-1 text-center">Trip Name</th>
-                                <th class="py-0.5 px-1 text-center">Guest Name</th>
-                                <th class="py-0.5 px-1 text-center">Guest Contact</th>
-                                <th class="py-0.5 px-1 text-center">Check-in Date</th>
-                                <th class="py-0.5 px-1 text-center">Booking Date</th>
-                                <th class="py-0.5 px-1 text-center">Total Cost</th>
-                                <th class="py-0.5 px-1 text-center">Total Expenses</th>
-                                <th class="py-0.5 px-1 text-center">Profit</th>
-                                <th class="py-0.5 px-1 text-center">Agent Name</th>
-                                <th class="py-0.5 px-1 text-center">Booking Status</th>
-                                <th class="py-0.5 px-1 text-center print:hidden">Actions</th>
-                            </tr>
-                            </thead>
-                            @foreach ($trips as $trip)
-                                <tbody class="text-black ext-sm leading-normal font-extrabold">
-                                <tr class="border-b border-gray-200 hover:bg-gray-100 text-sm">
-                                    <td class="py-0.5 px-1 text-center">{{ $loop->iteration }}</td>
-                                    <td class="py-0.5 px-1 text-left">{{ \Illuminate\Support\Str::limit($trip->trip_name,15) }}</td>
-                                    <td class="py-0.5 px-1 text-center">{{ \Illuminate\Support\Str::limit($trip->guest_name,15) }}</td>
-                                    <td class="py-0.5 px-1 text-center">
-                                        <a href="tel:{{ $trip->guest_contact }}" class="hover:underline text-blue-700">{{ $trip->guest_contact }}</a>
-                                    </td>
-                                    <td class="py-0.5 px-1 text-center">{{ \Carbon\Carbon::parse($trip->check_in_date)->format('d/M/y') }}</td>
-                                    <td class="py-0.5 px-1 text-center">{{ \Carbon\Carbon::parse($trip->booking_date)->format('d/M/y') }}</td>
-                                    <td class="py-0.5 px-1 text-right">{{ number_format($trip->total_cost,2) }}</td>
-                                    <td class="py-0.5 px-1 text-right">{{  number_format($trip->total_expenses,2) }}</td>
-                                    <td class="py-0.5 px-1 text-right">{{  number_format($trip->profit,2) }}</td>
-                                    <td class="py-0.5 px-1 text-center">{{ $trip->agent_name }}</td>
-                                    <td class="py-0.5 px-1 text-center">{{ $trip->booking_status }}</td>
-                                    <td class="py-0.5 px-1 text-center">
-                                        <a href="{{ route('trip.show', $trip->id) }}"
-                                           class="inline-flex items-center px-0.5 py-1 text-indigo-600 hover:text-indigo-900"
-                                           title="View">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                 viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M12 14v5m0-17v5m-9-2h5m12 0h-5m-6 10l3-3m2 3l3-3" />
-                                            </svg>
-                                        </a>
-                                        <a href="{{ route('trip.edit', $trip->id) }}"
-                                           class="inline-flex items-center px-0.5 py-1 text-indigo-600 hover:text-indigo-900"
-                                           title="Edit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                 viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                            </svg>
-                                        </a>
-                                        <form action="{{ route('trip.destroy', $trip->id) }}" method="post"
-                                              class="inline-block"
-                                              onsubmit="return confirm('Do you really want to delete the record?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="inline-flex items-center px-0.5 py-1 text-red-600 hover:text-red-900"
-                                                    title="Delete">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                     viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                                </svg>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            @endforeach
+                    <div class="overflow-x-auto">
+                        <div class="inline-block min-w-full align-middle">
+                            <div class="overflow-hidden shadow-lg ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                                <table class="min-w-full divide-y divide-gray-300 text-sm">
+                                    <thead class="bg-gradient-to-r from-blue-900 to-blue-700 text-white">
+                                        <tr>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">ID</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Trip Name</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Tour Type</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Guest Name</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Contact</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Check-in</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Booking</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Cost</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Expenses</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Profit</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Agent</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider">Status</th>
+                                            <th scope="col" class="py-3 px-2 text-center text-xs font-semibold uppercase tracking-wider print:hidden">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @foreach ($trips as $trip)
+                                            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                                <td class="py-2 px-2 text-center text-sm font-medium text-gray-900">{{ $loop->iteration }}</td>
+                                                <td class="py-2 px-2 text-left text-sm text-gray-900" title="{{ $trip->trip_name }}">
+                                                    {{ \Illuminate\Support\Str::limit($trip->trip_name, 20) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm">
+                                                    @if($trip->tour_type)
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $trip->tour_type == 'Domestic' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
+                                                            {{ $trip->tour_type }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-gray-400">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm text-gray-900" title="{{ $trip->guest_name }}">
+                                                    {{ \Illuminate\Support\Str::limit($trip->guest_name, 15) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm">
+                                                    <a href="tel:{{ $trip->guest_contact }}" class="text-blue-600 hover:text-blue-900 hover:underline">
+                                                        {{ $trip->guest_contact }}
+                                                    </a>
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm text-gray-900">
+                                                    {{ $trip->check_in_date ? \Carbon\Carbon::parse($trip->check_in_date)->format('d/M/y') : '-' }}
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm text-gray-900">
+                                                    {{ $trip->booking_date ? \Carbon\Carbon::parse($trip->booking_date)->format('d/M/y') : '-' }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-sm font-medium text-gray-900">
+                                                    Rs. {{ number_format($trip->total_cost, 2) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-sm font-medium text-gray-900">
+                                                    Rs. {{ number_format($trip->total_expenses, 2) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-right text-sm font-medium {{ $trip->profit >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                    Rs. {{ number_format($trip->profit, 2) }}
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm text-gray-900">{{ $trip->agent_name }}</td>
+                                                <td class="py-2 px-2 text-center text-sm">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $trip->booking_status == 'Booked' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                        {{ $trip->booking_status }}
+                                                    </span>
+                                                </td>
+                                                <td class="py-2 px-2 text-center text-sm print:hidden">
+                                                    <div class="flex items-center justify-center space-x-2">
+                                                        <a href="{{ route('trip.show', $trip->id) }}" 
+                                                           class="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50 transition-colors"
+                                                           title="View">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                            </svg>
+                                                        </a>
+                                                        <a href="{{ route('trip.edit', $trip->id) }}" 
+                                                           class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                                                           title="Edit">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                            </svg>
+                                                        </a>
+                                                        <form action="{{ route('trip.destroy', $trip->id) }}" method="post" 
+                                                              class="inline-block"
+                                                              onsubmit="return confirm('Do you really want to delete this trip?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                                                                    title="Delete">
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="bg-gradient-to-r from-blue-900 to-blue-700 text-white font-semibold">
+                                            <td class="py-3 px-2 text-right font-bold" colspan="7">Total:</td>
+                                            <td class="py-3 px-2 text-right font-bold">Rs. {{ number_format($sums->total_cost_sum, 2) }}</td>
+                                            <td class="py-3 px-2 text-right font-bold">Rs. {{ number_format($sums->total_expenses_sum, 2) }}</td>
+                                            <td class="py-3 px-2 text-right font-bold">Rs. {{ number_format($sums->profit_sum, 2) }}</td>
+                                            <td class="py-3 px-2"></td>
+                                            <td class="py-3 px-2"></td>
+                                            <td class="py-3 px-2 print:hidden"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
 
+                            <!-- Pagination -->
+                            <div class="mt-6 flex items-center justify-between">
+                                <div class="flex-1 flex justify-between sm:hidden">
+                                    @if ($trips->onFirstPage())
+                                        <span class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                            Previous
+                                        </span>
+                                    @else
+                                        <a href="{{ $trips->previousPageUrl() }}" class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                            Previous
+                                        </a>
+                                    @endif
 
-                            <thead>
-                            <tr class="text-white bg-blue-950  text-sm">
-                                <th class="py-0.5 px-1 text-right" colspan="6">Total</th>
-                                <th class="py-0.5 px-1 text-right">{{ number_format($sums->total_cost_sum, 2) }}</th>
-                                <th class="py-0.5 px-1 text-right">{{ number_format($sums->total_expenses_sum, 2) }}</th>
-                                <th class="py-0.5 px-1 text-right">{{ number_format($sums->profit_sum, 2) }}</th>
-                                <th class="py-0.5 px-1 text-right">&nbsp;</th>
-                                <th class="py-0.5 px-1 text-right">&nbsp;</th>
-                                <th class="py-0.5 px-1 text-right">&nbsp;</th>
-                            </tr>
-                            </thead>
-                        </table>
+                                    @if ($trips->hasMorePages())
+                                        <a href="{{ $trips->nextPageUrl() }}" class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 leading-5 rounded-md hover:text-gray-500 focus:outline-none focus:shadow-outline-blue focus:border-blue-300 active:bg-gray-100 active:text-gray-700 transition ease-in-out duration-150">
+                                            Next
+                                        </a>
+                                    @else
+                                        <span class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 cursor-default leading-5 rounded-md">
+                                            Next
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-700">
+                                            Showing
+                                            <span class="font-medium">{{ $trips->firstItem() }}</span>
+                                            to
+                                            <span class="font-medium">{{ $trips->lastItem() }}</span>
+                                            of
+                                            <span class="font-medium">{{ $trips->total() }}</span>
+                                            results
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {{ $trips->links() }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @else
-                    <p class="p-6">No trips found.</p>
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No trips found</h3>
+                        <p class="mt-1 text-sm text-gray-500">Get started by creating a new trip.</p>
+                        <div class="mt-6">
+                            <a href="{{ route('trip.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                New Trip
+                            </a>
+                        </div>
+                    </div>
                 @endif
             </div>
         </div>
@@ -234,94 +326,35 @@
     @push('modals')
 
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize flatpickr date range picker
-        const dateRangePicker = flatpickr("#check_in_date_range", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            disableMobile: "true",
-            onClose: function(selectedDates, dateStr, instance) {
-                if (selectedDates.length === 2) {
-                    const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-                    const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
-                    
-                    document.getElementById('check_in_date_from').value = startDate;
-                    document.getElementById('check_in_date_to').value = endDate;
-                }
-            }
-        });
-
-        // Pre-populate date range picker if values exist
-        const fromDate = document.getElementById('check_in_date_from').value;
-        const toDate = document.getElementById('check_in_date_to').value;
-        
-        if (fromDate && toDate) {
-            dateRangePicker.setDate([fromDate, toDate]);
-        }
-        
-        // Update the existing form submit event handler
-        const form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const checkInFrom = document.getElementById('check_in_date_from').value;
-            const checkInTo = document.getElementById('check_in_date_to').value;
-            const bookingFrom = document.getElementById('booking_date_from').value;
-            const bookingTo = document.getElementById('booking_date_to').value;
-
-            if (checkInFrom && checkInTo) {
-                const checkInDateInput = document.createElement('input');
-                checkInDateInput.type = 'hidden';
-                checkInDateInput.name = 'filter[check_in_date]';
-                checkInDateInput.value = `${checkInFrom},${checkInTo}`;
-                form.appendChild(checkInDateInput);
-            }
-
-            if (bookingFrom && bookingTo) {
-                const bookingDateInput = document.createElement('input');
-                bookingDateInput.type = 'hidden';
-                bookingDateInput.name = 'filter[booking_date]';
-                bookingDateInput.value = `${bookingFrom},${bookingTo}`;
-                form.appendChild(bookingDateInput);
-            }
-
-            form.submit();
-        });
-
-
-
-        const bookingDateRangePicker = flatpickr("#booking_date_range", {
-    mode: "range",
-    dateFormat: "Y-m-d",
-    disableMobile: "true",
-    onClose: function(selectedDates, dateStr, instance) {
-        if (selectedDates.length === 2) {
-            const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
-            const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
-            
-            document.getElementById('booking_date_from').value = startDate;
-            document.getElementById('booking_date_to').value = endDate;
-        }
-    }
-});
-
-// Pre-populate booking date range picker if values exist
-const bookingFromDate = document.getElementById('booking_date_from').value;
-const bookingToDate = document.getElementById('booking_date_to').value;
-
-if (bookingFromDate && bookingToDate) {
-    bookingDateRangePicker.setDate([bookingFromDate, bookingToDate]);
-}
-
-    });
-</script>
-
-
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // Initialize flatpickr date range picker
+                const dateRangePicker = flatpickr("#check_in_date_range", {
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    disableMobile: "true",
+                    onClose: function(selectedDates, dateStr, instance) {
+                        if (selectedDates.length === 2) {
+                            const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                            const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+
+                            document.getElementById('check_in_date_from').value = startDate;
+                            document.getElementById('check_in_date_to').value = endDate;
+                        }
+                    }
+                });
+
+                // Pre-populate date range picker if values exist
+                const fromDate = document.getElementById('check_in_date_from').value;
+                const toDate = document.getElementById('check_in_date_to').value;
+
+                if (fromDate && toDate) {
+                    dateRangePicker.setDate([fromDate, toDate]);
+                }
+
+                // Update the existing form submit event handler
                 const form = document.querySelector('form');
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -349,24 +382,83 @@ if (bookingFromDate && bookingToDate) {
 
                     form.submit();
                 });
+
+
+
+                const bookingDateRangePicker = flatpickr("#booking_date_range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            disableMobile: "true",
+            onClose: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    const startDate = flatpickr.formatDate(selectedDates[0], "Y-m-d");
+                    const endDate = flatpickr.formatDate(selectedDates[1], "Y-m-d");
+
+                    document.getElementById('booking_date_from').value = startDate;
+                    document.getElementById('booking_date_to').value = endDate;
+                }
+            }
+        });
+
+        // Pre-populate booking date range picker if values exist
+        const bookingFromDate = document.getElementById('booking_date_from').value;
+        const bookingToDate = document.getElementById('booking_date_to').value;
+
+        if (bookingFromDate && bookingToDate) {
+            bookingDateRangePicker.setDate([bookingFromDate, bookingToDate]);
+        }
+
             });
         </script>
 
-        <script>
 
-            const targetDiv = document.getElementById("filters");
-            const btn = document.getElementById("toggle");
-            btn.onclick = function () {
-                if (targetDiv.style.display !== "none") {
-                    targetDiv.style.display = "none";
-                } else {
-                    targetDiv.style.display = "block";
-                }
-            };
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const form = document.querySelector('form');
+                        form.addEventListener('submit', function(e) {
+                            e.preventDefault();
 
-            function redirectToLink(url) {
-                window.location.href = url;
-            }
-        </script>
+                            const checkInFrom = document.getElementById('check_in_date_from').value;
+                            const checkInTo = document.getElementById('check_in_date_to').value;
+                            const bookingFrom = document.getElementById('booking_date_from').value;
+                            const bookingTo = document.getElementById('booking_date_to').value;
+
+                            if (checkInFrom && checkInTo) {
+                                const checkInDateInput = document.createElement('input');
+                                checkInDateInput.type = 'hidden';
+                                checkInDateInput.name = 'filter[check_in_date]';
+                                checkInDateInput.value = `${checkInFrom},${checkInTo}`;
+                                form.appendChild(checkInDateInput);
+                            }
+
+                            if (bookingFrom && bookingTo) {
+                                const bookingDateInput = document.createElement('input');
+                                bookingDateInput.type = 'hidden';
+                                bookingDateInput.name = 'filter[booking_date]';
+                                bookingDateInput.value = `${bookingFrom},${bookingTo}`;
+                                form.appendChild(bookingDateInput);
+                            }
+
+                            form.submit();
+                        });
+                    });
+                </script>
+
+                <script>
+
+                    const targetDiv = document.getElementById("filters");
+                    const btn = document.getElementById("toggle");
+                    btn.onclick = function () {
+                        if (targetDiv.style.display !== "none") {
+                            targetDiv.style.display = "none";
+                        } else {
+                            targetDiv.style.display = "block";
+                        }
+                    };
+
+                    function redirectToLink(url) {
+                        window.location.href = url;
+                    }
+                </script>
     @endpush
 </x-app-layout>

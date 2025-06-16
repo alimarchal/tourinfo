@@ -64,10 +64,19 @@ class TripController extends Controller
                 }),
                 'agent_name',
                 AllowedFilter::exact('booking_status'),
+                AllowedFilter::exact('tour_type'),
             ])
             ->allowedSorts([
-                'id', 'trip_name', 'guest_name', 'check_in_date', 'booking_date',
-                'total_cost', 'total_expenses', 'profit', 'agent_name', 'booking_status'
+                'id',
+                'trip_name',
+                'guest_name',
+                'check_in_date',
+                'booking_date',
+                'total_cost',
+                'total_expenses',
+                'profit',
+                'agent_name',
+                'booking_status'
             ]);
 
         // Calculate sums based on the filtered query

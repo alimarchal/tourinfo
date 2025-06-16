@@ -7,7 +7,7 @@
         <div class="flex justify-center items-center float-right">
 
             <a href="{{ route('trip.index') }}"
-               class="inline-flex items-center px-4 py-2 bg-blue-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                class="inline-flex items-center px-4 py-2 bg-blue-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 Back
             </a>
 
@@ -24,6 +24,16 @@
                             <h3 class="text-lg font-semibold text-gray-800">Trip Information</h3>
                             <hr class="my-3 border-gray-300">
                             <div class="mb-4">
+                                <p><strong>Tour Type:</strong>
+                                    @if($trip->tour_type)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $trip->tour_type == 'Domestic' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' }}">
+                                            {{ $trip->tour_type }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-500">Not specified</span>
+                                    @endif
+                                </p>
                                 <p><strong>Guest Name:</strong> {{ $trip->guest_name }}</p>
                                 <p><strong>Guest Email:</strong> {{ $trip->guest_email }}</p>
                                 <p><strong>Guest Contact:</strong> {{ $trip->guest_contact }}</p>
@@ -48,10 +58,10 @@
                                 <p><strong>Booking Status:</strong> <span
                                         class="text-green-600">{{ $trip->booking_status }}</span></p>
                                 @if(!empty($trip->path_attachment))
-                                    <p><strong>Attachment:</strong> <span
-                                                class="text-green-600">
-                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($trip->path_attachment) }}" target="_blank">View Attachment</a>
-                                    </span></p>
+                                    <p><strong>Attachment:</strong> <span class="text-green-600">
+                                            <a href="{{ \Illuminate\Support\Facades\Storage::url($trip->path_attachment) }}"
+                                                target="_blank">View Attachment</a>
+                                        </span></p>
                                 @endif
 
                             </div>
@@ -90,7 +100,8 @@
                             <div class="bg-gray-100 rounded-lg p-4 mb-4">
                                 <p class="text-gray-800">{{ $comment->description }}</p>
                                 <p class="text-sm text-gray-500 mt-2">Added on
-                                    {{ $comment->created_at->format('M d, Y') }}</p>
+                                    {{ $comment->created_at->format('M d, Y') }}
+                                </p>
                             </div>
                         @empty
                             <p class="text-gray-500">No comments yet.</p>

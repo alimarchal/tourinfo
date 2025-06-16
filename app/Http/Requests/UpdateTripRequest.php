@@ -22,7 +22,19 @@ class UpdateTripRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'trip_name' => 'nullable|string|max:255',
+            'tour_type' => 'nullable|in:Domestic,International',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_email' => 'nullable|email|max:255',
+            'guest_contact' => 'nullable|string|max:255',
+            'check_in_date' => 'nullable|date',
+            'booking_date' => 'nullable|date',
+            'total_cost' => 'nullable|numeric|min:0',
+            'total_expenses' => 'nullable|numeric|min:0',
+            'profit' => 'nullable|numeric',
+            'agent_name' => 'nullable|string|max:255',
+            'booking_status' => 'nullable|in:Pending,Booked',
+            'path_attachment_update' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
         ];
     }
 }

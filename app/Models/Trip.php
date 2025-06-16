@@ -21,12 +21,13 @@ class Trip extends Model
         'profit',
         'agent_name',
         'booking_status',
+        'tour_type',
         'path_attachment'
     ];
     // Trip.php (Model)
-public function comments()
-{
-    return $this->hasMany(Comment::class);
-}
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 
 }
