@@ -33,11 +33,11 @@ class DashboardController extends Controller
             $baseQuery->whereBetween($dateField, [$startDate, $endDate]);
         }
 
-        // Get overall statistics
+        // Get overall statistics with corrected profit calculation
         $totalTrips = $baseQuery->count();
         $totalRevenue = $baseQuery->sum('total_cost') ?? 0;
         $totalExpenses = $baseQuery->sum('total_expenses') ?? 0;
-        $totalProfit = $baseQuery->sum('profit') ?? 0;
+        $totalProfit = $totalRevenue - $totalExpenses;
         $avgProfitMargin = $totalRevenue > 0 ? round(($totalProfit / $totalRevenue) * 100, 2) : 0;
 
         // Domestic vs International Tours
@@ -122,16 +122,18 @@ class DashboardController extends Controller
             $current->addMonth();
         }
 
-        // Agent-wise report data
+        // Agent-wise report data with proper profit calculation
         $agentReport = $baseQuery->clone()
             ->select(
                 'agent_name',
                 DB::raw('COUNT(*) as total_trips'),
                 DB::raw('COALESCE(SUM(total_cost), 0) as total_sales'),
-                DB::raw('COALESCE(SUM(profit), 0) as total_profit'),
-                DB::raw('COALESCE(AVG(profit), 0) as avg_profit')
+                DB::raw('COALESCE(SUM(total_expenses), 0) as total_expenses'),
+                DB::raw('COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit'),
+                DB::raw('COALESCE(AVG(total_cost - total_expenses), 0) as avg_profit')
             )
             ->whereNotNull('agent_name')
+            ->whereNotNull('total_cost')
             ->groupBy('agent_name')
             ->orderByDesc('total_profit')
             ->get();
@@ -173,25 +175,28 @@ class DashboardController extends Controller
         $startOfMonth = Carbon::parse($month)->startOfMonth();
         $endOfMonth = Carbon::parse($month)->endOfMonth();
 
-        // Get monthly statistics
+        // Get monthly statistics with proper profit calculation
         $monthlyStats = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
             ->selectRaw('
                 COUNT(*) as total_trips,
                 COALESCE(SUM(total_cost), 0) as total_revenue,
-                COALESCE(SUM(profit), 0) as total_profit
+                COALESCE(SUM(total_expenses), 0) as total_expenses,
+                COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit
             ')
             ->first();
 
-        // Get agent-wise data for the month
+        // Get agent-wise data for the month with proper profit calculation
         $agentData = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
             ->select(
                 'agent_name',
                 DB::raw('COUNT(*) as total_trips'),
                 DB::raw('COALESCE(SUM(total_cost), 0) as total_sales'),
-                DB::raw('COALESCE(SUM(profit), 0) as total_profit'),
-                DB::raw('COALESCE(AVG(profit), 0) as avg_profit')
+                DB::raw('COALESCE(SUM(total_expenses), 0) as total_expenses'),
+                DB::raw('COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit'),
+                DB::raw('COALESCE(AVG(total_cost - total_expenses), 0) as avg_profit')
             )
             ->whereNotNull('agent_name')
+            ->whereNotNull('total_cost')
             ->groupBy('agent_name')
             ->orderByDesc('total_trips')
             ->get();
