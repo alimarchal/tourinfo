@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
             <h2 class="font-bold text-2xl lg:text-3xl text-gray-800 dark:text-gray-100 leading-tight">
-                {{ __('Dashboard') }}
+                {{ __('Dashboard Analytics') }}
             </h2>
             <div class="text-sm text-gray-500 dark:text-gray-400">
                 {{ now()->format('M d, Y') }}
@@ -13,18 +13,81 @@
     <div class="py-4 sm:py-6 lg:py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 lg:space-y-8">
 
+            <!-- Date Filter Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+                <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col lg:flex-row gap-4 items-end">
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="date_field"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Date Field
+                            </label>
+                            <select name="date_field" id="date_field"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                                <option value="booking_date" {{ $dateField == 'booking_date' ? 'selected' : '' }}>Booking
+                                    Date</option>
+                                <option value="check_in_date" {{ $dateField == 'check_in_date' ? 'selected' : '' }}>
+                                    Check-in Date</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="start_date"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                Start Date
+                            </label>
+                            <input type="date" name="start_date" id="start_date" value="{{ $startDate }}"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        </div>
+
+                        <div>
+                            <label for="end_date"
+                                class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                End Date
+                            </label>
+                            <input type="date" name="end_date" id="end_date" value="{{ $endDate }}"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit"
+                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z">
+                                </path>
+                            </svg>
+                            Filter
+                        </button>
+
+                        <a href="{{ route('dashboard') }}"
+                            class="px-6 py-3 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                </path>
+                            </svg>
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 lg:gap-6">
                 <!-- Total Trips Card -->
                 <div
-                    class="group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-medium opacity-90 mb-1">Total Trips</h4>
-                            <p class="text-2xl lg:text-3xl font-bold">{{ number_format($totalTrips) }}</p>
+                    class="card-loading group bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-xl transition-all duration-300 p-5 hover:scale-105">
+                    <div class="flex items-center justify-between h-full">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium opacity-90 mb-1 truncate">Total Trips</h4>
+                            <p class="text-xl lg:text-2xl font-bold truncate">{{ number_format($totalTrips) }}</p>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl p-3 group-hover:bg-opacity-30 transition-all">
-                            <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 ml-3 flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                                 </path>
@@ -35,14 +98,15 @@
 
                 <!-- Total Revenue Card -->
                 <div
-                    class="group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-medium opacity-90 mb-1">Total Revenue</h4>
-                            <p class="text-xl lg:text-2xl font-bold">Rs. {{ number_format($totalRevenue, 0) }}</p>
+                    class="card-loading group bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 text-white rounded-xl transition-all duration-300 p-5 hover:scale-105">
+                    <div class="flex items-center justify-between h-full">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium opacity-90 mb-1 truncate">Total Revenue</h4>
+                            <p class="text-lg lg:text-xl font-bold truncate">Rs.
+                                {{ number_format($totalRevenue / 1000, 0) }}K</p>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl p-3 group-hover:bg-opacity-30 transition-all">
-                            <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 ml-3 flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
                                 </path>
@@ -53,14 +117,15 @@
 
                 <!-- Total Expenses Card -->
                 <div
-                    class="group bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-medium opacity-90 mb-1">Total Expenses</h4>
-                            <p class="text-xl lg:text-2xl font-bold">Rs. {{ number_format($totalExpenses, 0) }}</p>
+                    class="card-loading group bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white rounded-xl transition-all duration-300 p-5 hover:scale-105">
+                    <div class="flex items-center justify-between h-full">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium opacity-90 mb-1 truncate">Total Expenses</h4>
+                            <p class="text-lg lg:text-xl font-bold truncate">Rs.
+                                {{ number_format($totalExpenses / 1000, 0) }}K</p>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl p-3 group-hover:bg-opacity-30 transition-all">
-                            <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 ml-3 flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
                             </svg>
@@ -70,14 +135,15 @@
 
                 <!-- Total Profit Card -->
                 <div
-                    class="group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-medium opacity-90 mb-1">Total Profit</h4>
-                            <p class="text-xl lg:text-2xl font-bold">Rs. {{ number_format($totalProfit, 0) }}</p>
+                    class="card-loading group bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white rounded-xl transition-all duration-300 p-5 hover:scale-105">
+                    <div class="flex items-center justify-between h-full">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium opacity-90 mb-1 truncate">Total Profit</h4>
+                            <p class="text-lg lg:text-xl font-bold truncate">Rs.
+                                {{ number_format($totalProfit / 1000, 0) }}K</p>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl p-3 group-hover:bg-opacity-30 transition-all">
-                            <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 ml-3 flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
                                 </path>
@@ -88,14 +154,14 @@
 
                 <!-- Profit Margin Card -->
                 <div
-                    class="group bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1 sm:col-span-2 lg:col-span-1">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-medium opacity-90 mb-1">Profit Margin</h4>
-                            <p class="text-2xl lg:text-3xl font-bold">{{ $avgProfitMargin }}%</p>
+                    class="card-loading group bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 text-white rounded-xl transition-all duration-300 p-5 hover:scale-105 sm:col-span-2 lg:col-span-1">
+                    <div class="flex items-center justify-between h-full">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-medium opacity-90 mb-1 truncate">Profit Margin</h4>
+                            <p class="text-xl lg:text-2xl font-bold truncate">{{ $avgProfitMargin }}%</p>
                         </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl p-3 group-hover:bg-opacity-30 transition-all">
-                            <svg class="w-6 h-6 lg:w-7 lg:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white bg-opacity-20 rounded-lg p-2 ml-3 flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
                                 </path>
@@ -104,63 +170,75 @@
                     </div>
                 </div>
             </div>
+
             <!-- Charts Row 1 -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
                 <!-- Tour Type Distribution -->
                 <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200">Tour Type
                             Distribution</h3>
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
                     </div>
-                    <div id="tourTypeChart" class="h-[280px] lg:h-[320px]"></div>
+                    <div id="tourTypeChart" class="h-[300px] lg:h-[350px]"></div>
                 </div>
 
                 <!-- Booking Status -->
                 <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200">Booking Status</h3>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                     </div>
-                    <div id="bookingStatusChart" class="h-[280px] lg:h-[320px]"></div>
+                    <div id="bookingStatusChart" class="h-[300px] lg:h-[350px]"></div>
                 </div>
             </div>
 
             <!-- Monthly Trends Chart -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">
-                        Monthly Trends ({{ date('Y') }})
-                    </h3>
+                    <div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">
+                            Monthly Trends Analysis
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            From {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} to
+                            {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                        </p>
+                    </div>
                     <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">Revenue & Expenses</span>
+                        <div class="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Revenue & Performance</span>
                     </div>
                 </div>
-                <div id="monthlyTrendsChart" class="h-[350px] lg:h-[450px]"></div>
+                <div id="monthlyTrendsChart" class="h-[400px] lg:h-[500px]"></div>
             </div>
 
             <!-- Agent Performance -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6">
-                    <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">Agent
-                        Performance</h3>
+                    <div>
+                        <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2 sm:mb-0">
+                            Agent Performance Analytics
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Sales performance and trip statistics by agent
+                        </p>
+                    </div>
                     <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">Sales & Performance</span>
+                        <div class="w-3 h-3 bg-indigo-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Sales & Trips</span>
                     </div>
                 </div>
-                <div id="agentChart" class="h-[400px] lg:h-[550px]"></div>
+                <div id="agentChart" class="h-[450px] lg:h-[600px]"></div>
             </div>
+
             <!-- Bottom Row - Recent Activity & Top Tours -->
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
                 <!-- Recent Trips -->
                 <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200">Recent Trips</h3>
                         <div class="flex items-center space-x-2">
@@ -171,18 +249,20 @@
                     <div class="space-y-4">
                         @forelse($recentTrips as $trip)
                             <div
-                                class="group flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-xl transition-all duration-200 border border-gray-200 dark:border-gray-600">
+                                class="group flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600">
                                 <div class="flex-1 min-w-0">
                                     <p class="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                        {{ $trip->trip_name }}</p>
+                                        {{ $trip->trip_name }}
+                                    </p>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                         <span class="font-medium">{{ $trip->guest_name }}</span> •
                                         <span>{{ $trip->agent_name }}</span>
                                     </p>
                                 </div>
                                 <div class="text-right ml-4 flex-shrink-0">
-                                    <p class="font-bold text-emerald-600 dark:text-emerald-400">Rs.
-                                        {{ number_format($trip->profit, 0) }}</p>
+                                    <p class="font-bold text-emerald-600 dark:text-emerald-400">
+                                        Rs. {{ number_format($trip->profit, 0) }}
+                                    </p>
                                     <span
                                         class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1 {{ $trip->tour_type == 'Domestic' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }}">
                                         {{ $trip->tour_type ?? 'Not Set' }}
@@ -196,7 +276,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <p class="text-gray-500 dark:text-gray-400 mt-2">No recent trips found.</p>
+                                <p class="text-gray-500 dark:text-gray-400 mt-2">No trips found in selected date range.</p>
                             </div>
                         @endforelse
                     </div>
@@ -204,19 +284,19 @@
 
                 <!-- Top Performing Tours -->
                 <div
-                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 lg:p-8 border border-gray-100 dark:border-gray-700">
+                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 lg:p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl lg:text-2xl font-bold text-gray-800 dark:text-gray-200">Top Performing Tours
                         </h3>
                         <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                             <span class="text-sm text-gray-500 dark:text-gray-400">By Profit</span>
                         </div>
                     </div>
                     <div class="space-y-4">
                         @forelse($topTours as $index => $tour)
                             <div
-                                class="group flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-xl transition-all duration-200 border border-gray-200 dark:border-gray-600">
+                                class="group flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600">
                                 <div class="flex items-center flex-1 min-w-0">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4 flex-shrink-0">
@@ -241,8 +321,9 @@
                                     </div>
                                 </div>
                                 <div class="text-right ml-4 flex-shrink-0">
-                                    <p class="font-bold text-emerald-600 dark:text-emerald-400">Rs.
-                                        {{ number_format($tour->profit, 0) }}</p>
+                                    <p class="font-bold text-emerald-600 dark:text-emerald-400">
+                                        Rs. {{ number_format($tour->profit, 0) }}
+                                    </p>
                                 </div>
                             </div>
                         @empty
@@ -252,7 +333,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
-                                <p class="text-gray-500 dark:text-gray-400 mt-2">No tours found.</p>
+                                <p class="text-gray-500 dark:text-gray-400 mt-2">No tours found in selected date range.</p>
                             </div>
                         @endforelse
                     </div>
@@ -260,298 +341,474 @@
             </div>
         </div>
     </div>
-    @push('modals')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
 
-            // Tour Type Distribution (Donut Chart)
-            var tourTypeOptions = {
-                series: @json($tourTypeStats->pluck('count')),
-                chart: {
-                    type: 'donut',
-                    height: 320,
-                    fontFamily: 'Inter, sans-serif',
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 800,
-                    }
-                },
-                labels: @json($tourTypeStats->pluck('tour_type')),
-                colors: ['#10B981', '#3B82F6'],
-                legend: {
-                    position: 'bottom',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    }
-                },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '65%',
-                            labels: {
-                                show: true,
-                                name: {
+    @push('modals')
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Enhanced color schemes
+                const colors = {
+                    primary: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+                    gradient: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'],
+                    success: '#10B981',
+                    warning: '#F59E0B',
+                    danger: '#EF4444',
+                    info: '#3B82F6'
+                };
+
+                // Add loading animations to cards
+                function animateCards() {
+                    const cards = document.querySelectorAll('.card-loading');
+                    cards.forEach((card, index) => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    });
+                }
+
+                // Start card animations
+                animateCards();
+
+                // Tour Type Distribution (Enhanced Donut Chart)
+                var tourTypeOptions = {
+                    series: @json($tourTypeCollection->pluck('count')),
+                    chart: {
+                        type: 'donut',
+                        height: 350,
+                        fontFamily: 'Inter, sans-serif',
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 1200,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150
+                            },
+                            dynamicAnimation: {
+                                enabled: true,
+                                speed: 350
+                            }
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            top: 3,
+                            left: 2,
+                            blur: 4,
+                            opacity: 0.1
+                        }
+                    },
+                    labels: @json($tourTypeCollection->pluck('tour_type')),
+                    colors: ['#10B981', '#3B82F6'],
+                    legend: {
+                        position: 'bottom',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
+                        markers: {
+                            width: 12,
+                            height: 12,
+                            radius: 6
+                        },
+                        itemMargin: {
+                            horizontal: 20,
+                            vertical: 5
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '65%',
+                                labels: {
                                     show: true,
-                                    fontSize: '16px',
-                                    fontWeight: 600
-                                },
-                                value: {
-                                    show: true,
-                                    fontSize: '24px',
-                                    fontWeight: 700,
-                                    formatter: function (val) {
-                                        return val
-                                    }
-                                },
-                                total: {
-                                    show: true,
-                                    showAlways: false,
-                                    label: 'Total',
-                                    fontSize: '16px',
-                                    fontWeight: 600,
-                                    color: '#374151',
-                                    formatter: function (w) {
-                                        return w.globals.seriesTotals.reduce((a, b) => {
-                                            return a + b
-                                        }, 0)
+                                    name: {
+                                        show: true,
+                                        fontSize: '16px',
+                                        fontWeight: 700,
+                                        color: '#374151'
+                                    },
+                                    value: {
+                                        show: true,
+                                        fontSize: '28px',
+                                        fontWeight: 700,
+                                        color: '#1F2937',
+                                        formatter: function (val) {
+                                            return val
+                                        }
+                                    },
+                                    total: {
+                                        show: true,
+                                        showAlways: true,
+                                        label: 'Total Trips',
+                                        fontSize: '14px',
+                                        fontWeight: 600,
+                                        color: '#6B7280',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                            return val + " trips"
-                        }
-                    }
-                },
-                responsive: [{
-                    breakpoint: 640,
-                    options: {
-                        chart: {
-                            height: 280
-                        },
-                        legend: {
-                            position: 'bottom',
-                            fontSize: '12px'
-                        }
-                    }
-                }]
-            };
-
-            var tourTypeChart = new ApexCharts(document.querySelector("#tourTypeChart"), tourTypeOptions);
-            tourTypeChart.render();
-
-            // Booking Status Chart (Pie Chart)
-            var bookingStatusOptions = {
-                series: @json($bookingStatusStats->pluck('count')),
-                chart: {
-                    type: 'pie',
-                    height: 320,
-                    fontFamily: 'Inter, sans-serif',
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 800,
-                    }
-                },
-                labels: @json($bookingStatusStats->pluck('booking_status')),
-                colors: ['#F59E0B', '#10B981'],
-                legend: {
-                    position: 'bottom',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    formatter: function (val, opts) {
-                        return opts.w.config.series[opts.seriesIndex]
                     },
-                    style: {
-                        fontSize: '14px',
-                        fontWeight: 600
-                    }
-                },
-                tooltip: {
-                    y: {
-                        formatter: function (val) {
-                            return val + " bookings"
-                        }
-                    }
-                },
-                responsive: [{
-                    breakpoint: 640,
-                    options: {
-                        chart: {
-                            height: 280
-                        },
-                        legend: {
-                            position: 'bottom',
-                            fontSize: '12px'
-                        },
-                        dataLabels: {
-                            style: {
-                                fontSize: '12px'
-                            }
-                        }
-                    }
-                }]
-            };
-
-            var bookingStatusChart = new ApexCharts(document.querySelector("#bookingStatusChart"), bookingStatusOptions);
-            bookingStatusChart.render();
-
-            // Monthly Trends Chart
-            var monthlyTrendsOptions = {
-                series: [{
-                    name: 'Revenue',
-                    type: 'column',
-                    data: @json($monthlyTrends->pluck('total_revenue'))
-                }, {
-                    name: 'Expenses',
-                    type: 'column',
-                    data: @json($monthlyTrends->pluck('total_expenses'))
-                }, {
-                    name: 'Profit',
-                    type: 'line',
-                    data: @json($monthlyTrends->pluck('total_profit'))
-                }, {
-                    name: 'Trips',
-                    type: 'line',
-                    data: @json($monthlyTrends->pluck('total_trips'))
-                }],
-                chart: {
-                    height: 450,
-                    type: 'line',
-                    stacked: false,
-                    fontFamily: 'Inter, sans-serif',
-                    toolbar: {
-                        show: true,
-                        tools: {
-                            download: true,
-                            selection: true,
-                            zoom: true,
-                            zoomin: true,
-                            zoomout: true,
-                            pan: true,
-                            reset: true
-                        }
+                    dataLabels: {
+                        enabled: false
                     },
-                    animations: {
+                    stroke: {
+                        width: 3,
+                        colors: ['#ffffff']
+                    },
+                    tooltip: {
                         enabled: true,
-                        easing: 'easeinout',
-                        speed: 800,
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        columnWidth: '60%',
-                        endingShape: 'rounded',
-                        borderRadius: 4
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    width: [0, 0, 4, 4],
-                    curve: 'smooth'
-                },
-                xaxis: {
-                    categories: @json($monthlyTrends->map(function ($item) {
-                        return \Carbon\Carbon::parse($item->month)->format('M');
-                    })),
-                    labels: {
+                        theme: 'dark',
                         style: {
-                            fontSize: '12px',
-                            fontWeight: 500
+                            fontSize: '14px',
+                            fontFamily: 'Inter, sans-serif'
+                        },
+                        y: {
+                            formatter: function (val, opts) {
+                                const tourType = @json($tourTypeCollection);
+                                const currentData = tourType[opts.seriesIndex];
+                                return `<div class="p-2">
+                                            <div class="font-semibold">${val} trips</div>
+                                            <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
+                                            <div class="text-sm">Profit: Rs. ${new Intl.NumberFormat().format(currentData.profit)}</div>
+                                        </div>`;
+                            }
                         }
                     }
-                },
-                yaxis: [
-                    {
-                        title: {
-                            text: 'Amount (PKR)',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600
+                };
+
+                var tourTypeChart = new ApexCharts(document.querySelector("#tourTypeChart"), tourTypeOptions);
+                tourTypeChart.render();
+
+                // Booking Status Chart (Enhanced Pie Chart)
+                var bookingStatusOptions = {
+                    series: @json($bookingStatusCollection->pluck('count')),
+                    chart: {
+                        type: 'pie',
+                        height: 350,
+                        fontFamily: 'Inter, sans-serif',
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 1200,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150
                             }
                         },
+                        dropShadow: {
+                            enabled: true,
+                            top: 3,
+                            left: 2,
+                            blur: 4,
+                            opacity: 0.1
+                        }
+                    },
+                    labels: @json($bookingStatusCollection->pluck('booking_status')),
+                    colors: ['#F59E0B', '#10B981'],
+                    legend: {
+                        position: 'bottom',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
+                        markers: {
+                            width: 12,
+                            height: 12,
+                            radius: 6
+                        },
+                        itemMargin: {
+                            horizontal: 20,
+                            vertical: 5
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            colors: ['#ffffff']
+                        },
+                        formatter: function (val, opts) {
+                            return opts.w.config.series[opts.seriesIndex]
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            top: 1,
+                            left: 1,
+                            blur: 1,
+                            opacity: 0.8
+                        }
+                    },
+                    stroke: {
+                        width: 3,
+                        colors: ['#ffffff']
+                    },
+                    tooltip: {
+                        enabled: true,
+                        theme: 'dark',
+                        style: {
+                            fontSize: '14px',
+                            fontFamily: 'Inter, sans-serif'
+                        },
+                        y: {
+                            formatter: function (val, opts) {
+                                const statusData = @json($bookingStatusCollection);
+                                const currentData = statusData[opts.seriesIndex];
+                                return `<div class="p-2">
+                                            <div class="font-semibold">${val} bookings</div>
+                                            <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
+                                        </div>`;
+                            }
+                        }
+                    }
+                };
+
+                var bookingStatusChart = new ApexCharts(document.querySelector("#bookingStatusChart"), bookingStatusOptions);
+                bookingStatusChart.render();
+
+                // Enhanced Monthly Trends Chart
+                var monthlyTrendsOptions = {
+                    series: [{
+                        name: 'Revenue',
+                        type: 'column',
+                        data: @json($monthlyData->pluck('total_revenue'))
+                    }, {
+                        name: 'Expenses',
+                        type: 'column',
+                        data: @json($monthlyData->pluck('total_expenses'))
+                    }, {
+                        name: 'Profit',
+                        type: 'line',
+                        data: @json($monthlyData->pluck('total_profit'))
+                    }, {
+                        name: 'Trips',
+                        type: 'line',
+                        data: @json($monthlyData->pluck('total_trips'))
+                    }],
+                    chart: {
+                        height: 500,
+                        type: 'line',
+                        stacked: false,
+                        fontFamily: 'Inter, sans-serif',
+                        background: 'transparent',
+                        toolbar: {
+                            show: true,
+                            offsetX: 0,
+                            offsetY: 0,
+                            tools: {
+                                download: true,
+                                selection: true,
+                                zoom: true,
+                                zoomin: true,
+                                zoomout: true,
+                                pan: true,
+                                reset: true
+                            },
+                            export: {
+                                csv: {
+                                    filename: 'monthly-trends'
+                                },
+                                svg: {
+                                    filename: 'monthly-trends'
+                                },
+                                png: {
+                                    filename: 'monthly-trends'
+                                }
+                            }
+                        },
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 1000,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150
+                            }
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            enabledOnSeries: [2, 3],
+                            top: 3,
+                            left: 2,
+                            blur: 4,
+                            opacity: 0.1
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '60%',
+                            endingShape: 'rounded',
+                            borderRadius: 6,
+                            borderRadiusApplication: 'end',
+                            borderRadiusWhenStacked: 'last'
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        width: [0, 0, 4, 4],
+                        curve: 'smooth',
+                        dashArray: [0, 0, 0, 5]
+                    },
+                    xaxis: {
+                        categories: @json($monthlyData->map(function ($item) {
+                            return \Carbon\Carbon::parse($item->month)->format('M Y');
+                        })),
                         labels: {
-                            formatter: function (val) {
-                                return "Rs. " + val.toFixed(0);
+                            style: {
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                colors: '#6B7280'
+                            },
+                            rotate: -45
+                        },
+                        axisBorder: {
+                            show: true,
+                            color: '#E5E7EB'
+                        },
+                        axisTicks: {
+                            show: true,
+                            color: '#E5E7EB'
+                        }
+                    },
+                    yaxis: [
+                        {
+                            title: {
+                                text: 'Amount (PKR)',
+                                style: {
+                                    fontSize: '14px',
+                                    fontWeight: 600,
+                                    color: '#374151'
+                                }
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#6B7280',
+                                    fontSize: '12px',
+                                    fontWeight: 500
+                                },
+                                formatter: function (val) {
+                                    return "Rs. " + new Intl.NumberFormat().format(val);
+                                }
+                            }
+                        },
+                        {
+                            opposite: true,
+                            title: {
+                                text: 'Number of Trips',
+                                style: {
+                                    fontSize: '14px',
+                                    fontWeight: 600,
+                                    color: '#374151'
+                                }
+                            },
+                            labels: {
+                                style: {
+                                    colors: '#6B7280',
+                                    fontSize: '12px',
+                                    fontWeight: 500
+                                },
+                                formatter: function (val) {
+                                    return val.toFixed(0);
+                                }
+                            }
+                        }
+                    ],
+                    colors: ['#10B981', '#EF4444', '#8B5CF6', '#F59E0B'],
+                    legend: {
+                        position: 'top',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
+                        markers: {
+                            width: 12,
+                            height: 12,
+                            radius: 6
+                        },
+                        itemMargin: {
+                            horizontal: 15,
+                            vertical: 5
+                        }
+                    },
+                    fill: {
+                        opacity: [0.85, 0.85, 1, 1],
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            shadeIntensity: 0.2,
+                            gradientToColors: ['#34D399', '#F87171', '#A78BFA', '#FBBF24'],
+                            inverseColors: false,
+                            opacityFrom: 0.85,
+                            opacityTo: 0.55,
+                            stops: [0, 100]
+                        }
+                    },
+                    grid: {
+                        show: true,
+                        borderColor: '#E5E7EB',
+                        strokeDashArray: 3,
+                        position: 'back',
+                        xaxis: {
+                            lines: {
+                                show: false
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: true
                             }
                         }
                     },
-                    {
-                        opposite: true,
-                        title: {
-                            text: 'Number of Trips',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600
-                            }
-                        },
-                        labels: {
-                            formatter: function (val) {
-                                return val.toFixed(0);
-                            }
-                        }
-                    }
-                ],
-                colors: ['#10B981', '#EF4444', '#8B5CF6', '#F59E0B'],
-                legend: {
-                    position: 'top',
-                    fontSize: '14px',
-                    fontWeight: 500,
                     markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    }
-                },
-                fill: {
-                    opacity: [0.85, 0.85, 1, 1]
-                },
-                responsive: [{
-                    breakpoint: 768,
-                    options: {
-                        chart: {
-                            height: 350
-                        },
-                        plotOptions: {
-                            bar: {
-                                columnWidth: '70%'
-                            }
-                        },
-                        legend: {
-                            fontSize: '12px'
+                        size: [0, 0, 6, 6],
+                        strokeColors: '#fff',
+                        strokeWidth: 2,
+                        hover: {
+                            size: 8
                         }
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        theme: 'dark',
+                        style: {
+                            fontSize: '14px',
+                            fontFamily: 'Inter, sans-serif'
+                        },
+                        x: {
+                            show: true,
+                            format: 'MMM yyyy'
+                        },
+                        y: [{
+                            formatter: function (val) {
+                                return "Rs. " + new Intl.NumberFormat().format(val);
+                            }
+                        }, {
+                            formatter: function (val) {
+                                return "Rs. " + new Intl.NumberFormat().format(val);
+                            }
+                        }, {
+                            formatter: function (val) {
+                                return "Rs. " + new Intl.NumberFormat().format(val);
+                            }
+                        }, {
+                            formatter: function (val) {
+                                return val + " trips";
+                            }
+                        }]
                     }
-                }]
-            };
+                };
 
-            var monthlyTrendsChart = new ApexCharts(document.querySelector("#monthlyTrendsChart"), monthlyTrendsOptions);
-            monthlyTrendsChart.render();
+                var monthlyTrendsChart = new ApexCharts(document.querySelector("#monthlyTrendsChart"), monthlyTrendsOptions);
+                monthlyTrendsChart.render();
 
-            // Agent Performance Chart
+                // Enhanced Agent Performance Chart
                 var agentOptions = {
                     series: [{
                         name: 'Total Sales',
@@ -567,12 +824,15 @@
                         data: @json($agentReport->pluck('total_trips'))
                     }],
                     chart: {
-                        height: 550,
+                        height: 600,
                         type: 'line',
                         stacked: false,
                         fontFamily: 'Inter, sans-serif',
+                        background: 'transparent',
                         toolbar: {
                             show: true,
+                            offsetX: 0,
+                            offsetY: 0,
                             tools: {
                                 download: true,
                                 selection: true,
@@ -581,12 +841,35 @@
                                 zoomout: true,
                                 pan: true,
                                 reset: true
+                            },
+                            export: {
+                                csv: {
+                                    filename: 'agent-performance'
+                                },
+                                svg: {
+                                    filename: 'agent-performance'
+                                },
+                                png: {
+                                    filename: 'agent-performance'
+                                }
                             }
                         },
                         animations: {
                             enabled: true,
                             easing: 'easeinout',
-                            speed: 800,
+                            speed: 1000,
+                            animateGradually: {
+                                enabled: true,
+                                delay: 150
+                            }
+                        },
+                        dropShadow: {
+                            enabled: true,
+                            enabledOnSeries: [2],
+                            top: 3,
+                            left: 2,
+                            blur: 4,
+                            opacity: 0.1
                         }
                     },
                     plotOptions: {
@@ -594,7 +877,9 @@
                             horizontal: false,
                             columnWidth: '65%',
                             endingShape: 'rounded',
-                            borderRadius: 6
+                            borderRadius: 8,
+                            borderRadiusApplication: 'end',
+                            borderRadiusWhenStacked: 'last'
                         }
                     },
                     dataLabels: {
@@ -610,8 +895,19 @@
                             rotate: -45,
                             style: {
                                 fontSize: '12px',
-                                fontWeight: 500
-                            }
+                                fontWeight: 600,
+                                colors: '#6B7280'
+                            },
+                            trim: true,
+                            maxHeight: 80
+                        },
+                        axisBorder: {
+                            show: true,
+                            color: '#E5E7EB'
+                        },
+                        axisTicks: {
+                            show: true,
+                            color: '#E5E7EB'
                         }
                     },
                     yaxis: [
@@ -620,12 +916,18 @@
                                 text: 'Amount (PKR)',
                                 style: {
                                     fontSize: '14px',
-                                    fontWeight: 600
+                                    fontWeight: 600,
+                                    color: '#374151'
                                 }
                             },
                             labels: {
+                                style: {
+                                    colors: '#6B7280',
+                                    fontSize: '12px',
+                                    fontWeight: 500
+                                },
                                 formatter: function (val) {
-                                    return "Rs. " + val.toFixed(0);
+                                    return "Rs. " + new Intl.NumberFormat().format(val);
                                 }
                             }
                         },
@@ -635,10 +937,16 @@
                                 text: 'Number of Trips',
                                 style: {
                                     fontSize: '14px',
-                                    fontWeight: 600
+                                    fontWeight: 600,
+                                    color: '#374151'
                                 }
                             },
                             labels: {
+                                style: {
+                                    colors: '#6B7280',
+                                    fontSize: '12px',
+                                    fontWeight: 500
+                                },
                                 formatter: function (val) {
                                     return val.toFixed(0);
                                 }
@@ -649,146 +957,183 @@
                     legend: {
                         position: 'top',
                         fontSize: '14px',
-                        fontWeight: 500,
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
                         markers: {
                             width: 12,
                             height: 12,
                             radius: 6
+                        },
+                        itemMargin: {
+                            horizontal: 15,
+                            vertical: 5
                         }
                     },
                     fill: {
-                        opacity: [0.85, 0.85, 1]
+                        opacity: [0.85, 0.85, 1],
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            shadeIntensity: 0.2,
+                            gradientToColors: ['#63B3ED', '#68D391', '#F6E05E'],
+                            inverseColors: false,
+                            opacityFrom: 0.85,
+                            opacityTo: 0.55,
+                            stops: [0, 100]
+                        }
+                    },
+                    grid: {
+                        show: true,
+                        borderColor: '#E5E7EB',
+                        strokeDashArray: 3,
+                        position: 'back',
+                        xaxis: {
+                            lines: {
+                                show: false
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: true
+                            }
+                        }
                     },
                     markers: {
-                        size: 6,
+                        size: [0, 0, 6],
                         strokeColors: '#fff',
                         strokeWidth: 2,
                         hover: {
                             size: 8
                         }
                     },
-                    responsive: [{
-                        breakpoint: 768,
-                        options: {
-                            chart: {
-                                height: 400
-                            },
-                            plotOptions: {
-                                bar: {
-                                    columnWidth: '75%'
-                                }
-                            },
-                            legend: {
-                                fontSize: '12px'
-                            },
-                            xaxis: {
-                                labels: {
-                                    rotate: -90,
-                                    style: {
-                                        fontSize: '10px'
-                                    }
-                                }
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        theme: 'dark',
+                        style: {
+                            fontSize: '14px',
+                            fontFamily: 'Inter, sans-serif'
+                        },
+                        y: [{
+                            formatter: function (val) {
+                                return "Rs. " + new Intl.NumberFormat().format(val);
                             }
-                        }
-                    }]
+                        }, {
+                            formatter: function (val) {
+                                return "Rs. " + new Intl.NumberFormat().format(val);
+                            }
+                        }, {
+                            formatter: function (val) {
+                                return val + " trips";
+                            }
+                        }]
+                    }
                 };
 
                 var agentChart = new ApexCharts(document.querySelector("#agentChart"), agentOptions);
                 agentChart.render();
 
-                // Add responsive behavior for window resize
-                window.addEventListener('resize', function() {
+                // Enhanced responsive behavior
+                window.addEventListener('resize', function () {
                     setTimeout(() => {
+                        const isMobile = window.innerWidth < 640;
+                        const isTablet = window.innerWidth < 1024;
+
+                        const responsiveHeight = {
+                            small: isMobile ? 280 : 350,
+                            medium: isMobile ? 350 : isTablet ? 400 : 500,
+                            large: isMobile ? 400 : isTablet ? 500 : 600
+                        };
+
                         tourTypeChart.updateOptions({
-                            chart: {
-                                height: window.innerWidth < 640 ? 280 : 320
-                            }
+                            chart: { height: responsiveHeight.small }
                         });
+
                         bookingStatusChart.updateOptions({
-                            chart: {
-                                height: window.innerWidth < 640 ? 280 : 320
-                            }
+                            chart: { height: responsiveHeight.small }
                         });
+
                         monthlyTrendsChart.updateOptions({
-                            chart: {
-                                height: window.innerWidth < 768 ? 350 : 450
-                            }
+                            chart: { height: responsiveHeight.medium }
                         });
+
                         agentChart.updateOptions({
-                            chart: {
-                                height: window.innerWidth < 768 ? 400 : 550
-                            }
+                            chart: { height: responsiveHeight.large }
                         });
                     }, 100);
+                });
+
+                // Add loading states
+                const charts = [tourTypeChart, bookingStatusChart, monthlyTrendsChart, agentChart];
+                charts.forEach(chart => {
+                    chart.addEventListener('dataPointSelection', function (event, chartContext, config) {
+                        console.log('Data point selected:', config);
+                    });
                 });
             });
         </script>
 
         <style>
-            /* Custom scrollbar for better aesthetics */
+            /* Enhanced Custom Styles */
             ::-webkit-scrollbar {
                 width: 6px;
                 height: 6px;
             }
-            
+
             ::-webkit-scrollbar-track {
                 background: #f1f5f9;
                 border-radius: 3px;
             }
-            
+
             ::-webkit-scrollbar-thumb {
                 background: #cbd5e1;
                 border-radius: 3px;
             }
-            
+
             ::-webkit-scrollbar-thumb:hover {
                 background: #94a3b8;
             }
 
-            /* Dark mode scrollbar */
             .dark ::-webkit-scrollbar-track {
                 background: #374151;
             }
-            
+
             .dark ::-webkit-scrollbar-thumb {
                 background: #6b7280;
             }
-            
+
             .dark ::-webkit-scrollbar-thumb:hover {
                 background: #9ca3af;
             }
 
-            /* Custom animations */
-            @keyframes slideInUp {
+            /* Card loading animations */
+            .card-loading {
+                transition: all 0.6s ease-out;
+            }
+
+            /* Enhanced animations */
+            @keyframes fadeInChart {
                 from {
                     opacity: 0;
-                    transform: translateY(20px);
+                    transform: translateY(10px);
                 }
+
                 to {
                     opacity: 1;
                     transform: translateY(0);
                 }
             }
 
-            .animate-slide-in-up {
-                animation: slideInUp 0.6s ease-out;
+            .apexcharts-canvas {
+                opacity: 0;
+                animation: fadeInChart 0.8s ease-in-out 0.2s forwards;
             }
 
-            /* Gradient background for dark mode */
-            .dark body {
-                background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            }
-
-            /* Enhanced hover effects */
-            .group:hover .group-hover\:scale-105 {
-                transform: scale(1.05);
-            }
-
-            /* ApexCharts custom styling */
+            /* Clean ApexCharts styling */
             .apexcharts-toolbar {
                 border-radius: 8px !important;
                 background: rgba(255, 255, 255, 0.9) !important;
-                backdrop-filter: blur(10px) !important;
+                backdrop-filter: blur(8px) !important;
                 border: 1px solid rgba(229, 231, 235, 0.5) !important;
             }
 
@@ -797,50 +1142,49 @@
                 border: 1px solid rgba(75, 85, 99, 0.5) !important;
             }
 
-            /* Loading animation for charts */
-            .apexcharts-canvas {
-                opacity: 0;
-                animation: fadeInChart 1s ease-in-out 0.5s forwards;
-            }
-
-            @keyframes fadeInChart {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-
-            /* Card hover effects */
+            /* Hover effects without excessive shadows */
             .bg-white:hover,
             .dark .dark\:bg-gray-800:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-1px);
             }
 
-            .dark .bg-white:hover,
-            .dark .dark\:bg-gray-800:hover {
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            /* Form enhancements */
+            input[type="date"]::-webkit-calendar-picker-indicator {
+                background: transparent;
+                bottom: 0;
+                color: transparent;
+                cursor: pointer;
+                height: auto;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: auto;
             }
 
-            /* Mobile optimization */
+            /* Mobile optimizations */
             @media (max-width: 640px) {
                 .apexcharts-legend {
                     flex-wrap: wrap !important;
+                    justify-content: center !important;
                 }
-                
+
                 .apexcharts-legend-series {
-                    margin: 2px 8px !important;
+                    margin: 2px 6px !important;
                 }
             }
 
-            /* Print styles */
+            /* Print optimizations */
             @media print {
                 .apexcharts-toolbar {
                     display: none !important;
                 }
-                
+
                 .bg-gradient-to-br,
                 .bg-gradient-to-r {
                     background: #6b7280 !important;
                     -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
                 }
             }
         </style>
