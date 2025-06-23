@@ -11,6 +11,11 @@ class DashboardController extends Controller
 {
     public function dashboard(Request $request)
     {
+        // Handle AJAX request for monthly data
+        if ($request->has('ajax') && $request->has('month')) {
+            return $this->getMonthlyData($request);
+        }
+
         // Get date filters from request
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
@@ -160,5 +165,46 @@ class DashboardController extends Controller
             'endDate',
             'dateField'
         ));
+    }
+
+    private function getMonthlyData(Request $request)
+    {
+        $month = $request->get('month');
+        $startOfMonth = Carbon::parse($month)->startOfMonth();
+        $endOfMonth = Carbon::parse($month)->endOfMonth();
+
+        // Get monthly statistics
+        $monthlyStats = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->selectRaw('
+                COUNT(*) as total_trips,
+                COALESCE(SUM(total_cost), 0) as total_revenue,
+                COALESCE(SUM(profit), 0) as total_profit
+            ')
+            ->first();
+
+        // Get agent-wise data for the month
+        $agentData = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->select(
+                'agent_name',
+                DB::raw('COUNT(*) as total_trips'),
+                DB::raw('COALESCE(SUM(total_cost), 0) as total_sales'),
+                DB::raw('COALESCE(SUM(profit), 0) as total_profit'),
+                DB::raw('COALESCE(AVG(profit), 0) as avg_profit')
+            )
+            ->whereNotNull('agent_name')
+            ->groupBy('agent_name')
+            ->orderByDesc('total_trips')
+            ->get();
+
+        // Find top agent
+        $topAgent = $agentData->first();
+
+        return response()->json([
+            'totalTrips' => $monthlyStats->total_trips ?? 0,
+            'totalRevenue' => $monthlyStats->total_revenue ?? 0,
+            'totalProfit' => $monthlyStats->total_profit ?? 0,
+            'topAgent' => $topAgent ? "{$topAgent->agent_name} ({$topAgent->total_trips} trips)" : 'No Data',
+            'agentData' => $agentData->toArray()
+        ]);
     }
 }
