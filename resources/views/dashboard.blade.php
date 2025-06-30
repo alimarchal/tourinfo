@@ -290,7 +290,7 @@
                                     <p class="font-bold text-emerald-600 dark:text-emerald-400">
                                         Rs. {{ number_format($trip->profit, 0) }}
                                     </p>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1 {{ $trip->tour_type == 'Domestic' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' }}">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium mt-1 {{ $trip->tour_type == 'Domestic' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200' : ($trip->tour_type == 'International' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200') }}">
                                         {{ $trip->tour_type ?? 'Not Set' }}
                                     </span>
                                 </div>
@@ -360,796 +360,743 @@
 
     @push('modals')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Enhanced color schemes
-            const colors = {
-                primary: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
-                gradient: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'],
-                success: '#10B981',
-                warning: '#F59E0B',
-                danger: '#EF4444',
-                info: '#3B82F6'
-            };
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Enhanced color schemes
+        const colors = {
+            primary: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+            gradient: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'],
+            success: '#10B981',
+            warning: '#F59E0B',
+            danger: '#EF4444',
+            info: '#3B82F6'
+        };
 
-            // Add loading animations to cards
-            function animateCards() {
-                const cards = document.querySelectorAll('.card-loading');
-                cards.forEach((card, index) => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, index * 100);
-                });
-            }
+        // Add loading animations to cards
+        function animateCards() {
+            const cards = document.querySelectorAll('.card-loading');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
 
-            // Start card animations
-            animateCards();
+        // Start card animations
+        animateCards();
 
-            // Tour Type Distribution (Enhanced Donut Chart)
-            var tourTypeOptions = {
-                series: @json($tourTypeCollection->pluck('count')),
-                chart: {
-                    type: 'donut',
-                    height: 350,
-                    fontFamily: 'Inter, sans-serif',
-                    animations: {
+        // Tour Type Distribution (Enhanced Donut Chart) - FIXED: 3 colors for all trip types
+        var tourTypeOptions = {
+            series: @json($tourTypeCollection->pluck('count')),
+            chart: {
+                type: 'donut',
+                height: 350,
+                fontFamily: 'Inter, sans-serif',
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1200,
+                    animateGradually: {
                         enabled: true,
-                        easing: 'easeinout',
-                        speed: 1200,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        },
-                        dynamicAnimation: {
-                            enabled: true,
-                            speed: 350
-                        }
+                        delay: 150
                     },
-                    dropShadow: {
+                    dynamicAnimation: {
                         enabled: true,
-                        top: 3,
-                        left: 2,
-                        blur: 4,
-                        opacity: 0.1
+                        speed: 350
                     }
                 },
-                labels: @json($tourTypeCollection->pluck('tour_type')),
-                colors: ['#10B981', '#3B82F6'],
-                legend: {
-                    position: 'bottom',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    fontFamily: 'Inter, sans-serif',
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    },
-                    itemMargin: {
-                        horizontal: 20,
-                        vertical: 5
-                    }
+                dropShadow: {
+                    enabled: true,
+                    top: 3,
+                    left: 2,
+                    blur: 4,
+                    opacity: 0.1
+                }
+            },
+            labels: @json($tourTypeCollection->pluck('tour_type')),
+colors: ['#10B981', '#3B82F6', '#F59E0B'],
+            legend: {
+                position: 'bottom',
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter, sans-serif',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 6
                 },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '65%',
-                            labels: {
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                }
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%',
+                        labels: {
+                            show: true,
+                            name: {
                                 show: true,
-                                name: {
-                                    show: true,
-                                    fontSize: '16px',
-                                    fontWeight: 700,
-                                    color: '#374151'
-                                },
-                                value: {
-                                    show: true,
-                                    fontSize: '28px',
-                                    fontWeight: 700,
-                                    color: '#1F2937',
-                                    formatter: function (val) {
-                                        return val
-                                    }
-                                },
-                                total: {
-                                    show: true,
-                                    showAlways: true,
-                                    label: 'Total Trips',
-                                    fontSize: '14px',
-                                    fontWeight: 600,
-                                    color: '#6B7280',
-                                    formatter: function (w) {
-                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
-                                    }
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                color: '#374151'
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '28px',
+                                fontWeight: 700,
+                                color: '#1F2937',
+                                formatter: function (val) {
+                                    return val
+                                }
+                            },
+                            total: {
+                                show: true,
+                                showAlways: true,
+                                label: 'Total Trips',
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#6B7280',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                 }
                             }
                         }
                     }
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: 3,
+                colors: ['#ffffff']
+            },
+            tooltip: {
+                enabled: true,
+                theme: 'dark',
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Inter, sans-serif'
                 },
-                dataLabels: {
-                    enabled: false
+                y: {
+                    formatter: function (val, opts) {
+                        const tourType = @json($tourTypeCollection);
+                        const currentData = tourType[opts.seriesIndex];
+                        return `<div class="p-2">
+                                    <div class="font-semibold">${val} trips</div>
+                                    <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
+                                    <div class="text-sm">Profit: Rs. ${new Intl.NumberFormat().format(currentData.profit)}</div>
+                                </div>`;
+                    }
+                }
+            }
+        };
+
+        var tourTypeChart = new ApexCharts(document.querySelector("#tourTypeChart"), tourTypeOptions);
+        tourTypeChart.render();
+
+        // Booking Status Chart (Enhanced Pie Chart) - FIXED: 3 colors for all booking statuses
+        var bookingStatusOptions = {
+            series: @json($bookingStatusCollection->pluck('count')),
+            chart: {
+                type: 'pie',
+                height: 350,
+                fontFamily: 'Inter, sans-serif',
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1200,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    }
                 },
-                stroke: {
-                    width: 3,
+                dropShadow: {
+                    enabled: true,
+                    top: 3,
+                    left: 2,
+                    blur: 4,
+                    opacity: 0.1
+                }
+            },
+            labels: @json($bookingStatusCollection->pluck('booking_status')),
+            colors: ['#F59E0B', '#10B981', '#6B7280'], // Added third color for "Not Set"
+            legend: {
+                position: 'bottom',
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter, sans-serif',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 6
+                },
+                itemMargin: {
+                    horizontal: 20,
+                    vertical: 5
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                style: {
+                    fontSize: '14px',
+                    fontWeight: 600,
                     colors: ['#ffffff']
                 },
-                tooltip: {
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex]
+                },
+                dropShadow: {
                     enabled: true,
-                    theme: 'dark',
-                    style: {
-                        fontSize: '14px',
-                        fontFamily: 'Inter, sans-serif'
+                    top: 1,
+                    left: 1,
+                    blur: 1,
+                    opacity: 0.8
+                }
+            },
+            stroke: {
+                width: 3,
+                colors: ['#ffffff']
+            },
+            tooltip: {
+                enabled: true,
+                theme: 'dark',
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Inter, sans-serif'
+                },
+                y: {
+                    formatter: function (val, opts) {
+                        const statusData = @json($bookingStatusCollection);
+                        const currentData = statusData[opts.seriesIndex];
+                        return `<div class="p-2">
+                                    <div class="font-semibold">${val} bookings</div>
+                                    <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
+                                </div>`;
+                    }
+                }
+            }
+        };
+
+        var bookingStatusChart = new ApexCharts(document.querySelector("#bookingStatusChart"), bookingStatusOptions);
+        bookingStatusChart.render();
+
+        // Enhanced Monthly Trends Chart
+        var monthlyTrendsOptions = {
+            series: [{
+                name: 'Revenue',
+                type: 'column',
+                data: @json($monthlyData->pluck('total_revenue'))
+            }, {
+                name: 'Profit',
+                type: 'column',
+                data: @json($monthlyData->pluck('total_profit'))
+            }, {
+                name: 'Trips',
+                type: 'line',
+                data: @json($monthlyData->pluck('total_trips'))
+            }],
+            chart: {
+                height: 500,
+                type: 'line',
+                stacked: false,
+                fontFamily: 'Inter, sans-serif',
+                background: 'transparent',
+                toolbar: {
+                    show: true,
+                    offsetX: 0,
+                    offsetY: 0,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
                     },
-                    y: {
-                        formatter: function (val, opts) {
-                            const tourType = @json($tourTypeCollection);
-                            const currentData = tourType[opts.seriesIndex];
-                            return `<div class="p-2">
-                                        <div class="font-semibold">${val} trips</div>
-                                        <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
-                                        <div class="text-sm">Profit: Rs. ${new Intl.NumberFormat().format(currentData.profit)}</div>
-                                    </div>`;
+                    export: {
+                        csv: {
+                            filename: 'monthly-trends'
+                        },
+                        svg: {
+                            filename: 'monthly-trends'
+                        },
+                        png: {
+                            filename: 'monthly-trends'
+                        }
+                    }
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    }
+                },
+                dropShadow: {
+                    enabled: true,
+                    enabledOnSeries: [2],
+                    top: 3,
+                    left: 2,
+                    blur: 4,
+                    opacity: 0.1
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '60%',
+                    endingShape: 'rounded',
+                    borderRadius: 6,
+                    borderRadiusApplication: 'end',
+                    borderRadiusWhenStacked: 'last'
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                width: [0, 0, 4],
+                curve: 'smooth'
+            },
+            xaxis: {
+                categories: @json($monthlyData->map(function ($item) {
+                    return \Carbon\Carbon::parse($item->month)->format('M Y');
+                })),
+                labels: {
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        colors: '#6B7280'
+                    },
+                    rotate: -45
+                },
+                axisBorder: {
+                    show: true,
+                    color: '#E5E7EB'
+                },
+                axisTicks: {
+                    show: true,
+                    color: '#E5E7EB'
+                }
+            },
+            yaxis: [
+                {
+                    title: {
+                        text: 'Amount (PKR)',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            color: '#374151'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: '#6B7280',
+                            fontSize: '12px',
+                            fontWeight: 500
+                        },
+                        formatter: function (val) {
+                            return "Rs. " + new Intl.NumberFormat().format(val);
+                        }
+                    }
+                },
+                {
+                    opposite: true,
+                    title: {
+                        text: 'Number of Trips',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            color: '#374151'
+                        }
+                    },
+                    labels: {
+                        style: {
+                            colors: '#6B7280',
+                            fontSize: '12px',
+                            fontWeight: 500
+                        },
+                        formatter: function (val) {
+                            return val.toFixed(0);
                         }
                     }
                 }
-            };
-
-            var tourTypeChart = new ApexCharts(document.querySelector("#tourTypeChart"), tourTypeOptions);
-            tourTypeChart.render();
-
-            // Booking Status Chart (Enhanced Pie Chart)
-            var bookingStatusOptions = {
-                series: @json($bookingStatusCollection->pluck('count')),
-                chart: {
-                    type: 'pie',
-                    height: 350,
-                    fontFamily: 'Inter, sans-serif',
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 1200,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        }
-                    },
-                    dropShadow: {
-                        enabled: true,
-                        top: 3,
-                        left: 2,
-                        blur: 4,
-                        opacity: 0.1
+            ],
+            colors: ['#10B981', '#8B5CF6', '#F59E0B'],
+            legend: {
+                position: 'top',
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter, sans-serif',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 6
+                },
+                itemMargin: {
+                    horizontal: 15,
+                    vertical: 5
+                }
+            },
+            fill: {
+                opacity: [0.85, 0.85, 1],
+                gradient: {
+                    shade: 'light',
+                    type: 'vertical',
+                    shadeIntensity: 0.2,
+                    gradientToColors: ['#34D399', '#A78BFA', '#FBBF24'],
+                    inverseColors: false,
+                    opacityFrom: 0.85,
+                    opacityTo: 0.55,
+                    stops: [0, 100]
+                }
+            },
+            grid: {
+                show: true,
+                borderColor: '#E5E7EB',
+                strokeDashArray: 3,
+                position: 'back',
+                xaxis: {
+                    lines: {
+                        show: false
                     }
                 },
-                labels: @json($bookingStatusCollection->pluck('booking_status')),
-                colors: ['#F59E0B', '#10B981'],
-                legend: {
-                    position: 'bottom',
+                yaxis: {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
+            markers: {
+                size: [0, 0, 6],
+                strokeColors: '#fff',
+                strokeWidth: 2,
+                hover: {
+                    size: 8
+                }
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                theme: 'dark',
+                style: {
                     fontSize: '14px',
-                    fontWeight: 600,
-                    fontFamily: 'Inter, sans-serif',
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
+                    fontFamily: 'Inter, sans-serif'
+                },
+                x: {
+                    show: true,
+                    format: 'MMM yyyy'
+                },
+                y: [{
+                    formatter: function (val) {
+                        return "Rs. " + new Intl.NumberFormat().format(val);
+                    }
+                }, {
+                    formatter: function (val) {
+                        return "Rs. " + new Intl.NumberFormat().format(val);
+                    }
+                }, {
+                    formatter: function (val) {
+                        return val + " trips";
+                    }
+                }]
+            }
+        };
+
+        var monthlyTrendsChart = new ApexCharts(document.querySelector("#monthlyTrendsChart"), monthlyTrendsOptions);
+        monthlyTrendsChart.render();
+
+        // Enhanced Agent Performance Bar Chart with data validation
+        var agentData = @json($agentReport);
+        
+        // Validate and fix data client-side
+        var salesData = [];
+        var profitData = [];
+        var tripsData = [];
+        var agentNames = [];
+        
+        agentData.forEach(function(agent) {
+            var sales = parseFloat(agent.total_sales) || 0;
+            var profit = parseFloat(agent.total_profit) || 0;
+            var trips = parseInt(agent.total_trips) || 0;
+            
+            // Ensure profit never exceeds sales
+            if (profit > sales && sales > 0) {
+                profit = sales; // Cap profit at sales
+                console.warn('Data corrected for agent:', agent.agent_name, 'Original profit:', agent.total_profit, 'Corrected to:', profit);
+            }
+            
+            salesData.push(sales);
+            profitData.push(profit);
+            tripsData.push(trips * 10000); // Scale for visibility
+            agentNames.push(agent.agent_name);
+        });
+
+        var agentOptions = {
+            series: [{
+                name: 'Total Sales',
+                data: salesData
+            }, {
+                name: 'Total Profit',
+                data: profitData
+            }, {
+                name: 'Total Trips',
+                data: tripsData
+            }],
+            chart: {
+                type: 'bar',
+                height: 600,
+                fontFamily: 'Inter, sans-serif',
+                background: 'transparent',
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
                     },
-                    itemMargin: {
-                        horizontal: 20,
-                        vertical: 5
+                    export: {
+                        csv: {
+                            filename: 'agent-performance'
+                        },
+                        svg: {
+                            filename: 'agent-performance'
+                        },
+                        png: {
+                            filename: 'agent-performance'
+                        }
                     }
                 },
-                dataLabels: {
+                animations: {
                     enabled: true,
+                    easing: 'easeinout',
+                    speed: 1000,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    }
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '65%',
+                    borderRadius: 5,
+                    borderRadiusApplication: 'end'
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            xaxis: {
+                categories: agentNames,
+                labels: {
+                    rotate: -45,
+                    rotateAlways: true,
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        colors: '#6B7280'
+                    },
+                    trim: true,
+                    maxHeight: 120,
+                    hideOverlappingLabels: true,
+                    showDuplicates: false
+                },
+                axisBorder: {
+                    show: true,
+                    color: '#E5E7EB'
+                },
+                axisTicks: {
+                    show: true,
+                    color: '#E5E7EB'
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Amount (PKR)',
                     style: {
                         fontSize: '14px',
                         fontWeight: 600,
-                        colors: ['#ffffff']
+                        color: '#374151'
+                    }
+                },
+                labels: {
+                    style: {
+                        colors: '#6B7280',
+                        fontSize: '12px',
+                        fontWeight: 500
                     },
+                    formatter: function (val) {
+                        return "Rs. " + new Intl.NumberFormat().format(val);
+                    }
+                }
+            },
+            colors: ['#4299E1', '#48BB78', '#ECC94B'],
+            legend: {
+                position: 'top',
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'Inter, sans-serif',
+                markers: {
+                    width: 12,
+                    height: 12,
+                    radius: 6
+                },
+                itemMargin: {
+                    horizontal: 15,
+                    vertical: 5
+                }
+            },
+            fill: {
+                opacity: 0.85
+            },
+            grid: {
+                show: true,
+                borderColor: '#E5E7EB',
+                strokeDashArray: 3,
+                position: 'back',
+                xaxis: {
+                    lines: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
+            tooltip: {
+                theme: 'dark',
+                style: {
+                    fontSize: '14px',
+                    fontFamily: 'Inter, sans-serif'
+                },
+                y: {
                     formatter: function (val, opts) {
-                        return opts.w.config.series[opts.seriesIndex]
-                    },
-                    dropShadow: {
-                        enabled: true,
-                        top: 1,
-                        left: 1,
-                        blur: 1,
-                        opacity: 0.8
-                    }
-                },
-                stroke: {
-                    width: 3,
-                    colors: ['#ffffff']
-                },
-                tooltip: {
-                    enabled: true,
-                    theme: 'dark',
-                    style: {
-                        fontSize: '14px',
-                        fontFamily: 'Inter, sans-serif'
-                    },
-                    y: {
-                        formatter: function (val, opts) {
-                            const statusData = @json($bookingStatusCollection);
-                            const currentData = statusData[opts.seriesIndex];
-                            return `<div class="p-2">
-                                        <div class="font-semibold">${val} bookings</div>
-                                        <div class="text-sm">Revenue: Rs. ${new Intl.NumberFormat().format(currentData.revenue)}</div>
-                                    </div>`;
+                        if (opts.seriesIndex === 2) {
+                            // For trips series, divide by scaling factor
+                            return Math.round(val / 10000) + " trips";
                         }
+                        return "Rs. " + new Intl.NumberFormat().format(val);
                     }
                 }
-            };
+            }
+        };
 
-            var bookingStatusChart = new ApexCharts(document.querySelector("#bookingStatusChart"), bookingStatusOptions);
-            bookingStatusChart.render();
+        var agentChart = new ApexCharts(document.querySelector("#agentChart"), agentOptions);
+        agentChart.render();
 
-            // Enhanced Monthly Trends Chart
-            var monthlyTrendsOptions = {
-                series: [{
-                    name: 'Revenue',
-                    type: 'column',
-                    data: @json($monthlyData->pluck('total_revenue'))
-                }, {
-                    name: 'Expenses',
-                    type: 'column',
-                    data: @json($monthlyData->pluck('total_expenses'))
-                }, {
-                    name: 'Profit',
-                    type: 'line',
-                    data: @json($monthlyData->pluck('total_profit'))
-                }, {
-                    name: 'Trips',
-                    type: 'line',
-                    data: @json($monthlyData->pluck('total_trips'))
-                }],
-                chart: {
-                    height: 500,
-                    type: 'line',
-                    stacked: false,
-                    fontFamily: 'Inter, sans-serif',
-                    background: 'transparent',
-                    toolbar: {
-                        show: true,
-                        offsetX: 0,
-                        offsetY: 0,
-                        tools: {
-                            download: true,
-                            selection: true,
-                            zoom: true,
-                            zoomin: true,
-                            zoomout: true,
-                            pan: true,
-                            reset: true
-                        },
-                        export: {
-                            csv: {
-                                filename: 'monthly-trends'
-                            },
-                            svg: {
-                                filename: 'monthly-trends'
-                            },
-                            png: {
-                                filename: 'monthly-trends'
-                            }
-                        }
-                    },
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 1000,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        }
-                    },
-                    dropShadow: {
-                        enabled: true,
-                        enabledOnSeries: [2, 3],
-                        top: 3,
-                        left: 2,
-                        blur: 4,
-                        opacity: 0.1
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        columnWidth: '60%',
-                        endingShape: 'rounded',
-                        borderRadius: 6,
-                        borderRadiusApplication: 'end',
-                        borderRadiusWhenStacked: 'last'
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    width: [0, 0, 4, 4],
-                    curve: 'smooth',
-                    dashArray: [0, 0, 0, 5]
-                },
-                xaxis: {
-                    categories: @json($monthlyData->map(function ($item) {
-                        return \Carbon\Carbon::parse($item->month)->format('M Y');
-                    })),
-                    labels: {
-                        style: {
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            colors: '#6B7280'
-                        },
-                        rotate: -45
-                    },
-                    axisBorder: {
-                        show: true,
-                        color: '#E5E7EB'
-                    },
-                    axisTicks: {
-                        show: true,
-                        color: '#E5E7EB'
-                    }
-                },
-                yaxis: [
-                    {
-                        title: {
-                            text: 'Amount (PKR)',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                color: '#374151'
-                            }
-                        },
-                        labels: {
-                            style: {
-                                colors: '#6B7280',
-                                fontSize: '12px',
-                                fontWeight: 500
-                            },
-                            formatter: function (val) {
-                                return "Rs. " + new Intl.NumberFormat().format(val);
-                            }
-                        }
-                    },
-                    {
-                        opposite: true,
-                        title: {
-                            text: 'Number of Trips',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                color: '#374151'
-                            }
-                        },
-                        labels: {
-                            style: {
-                                colors: '#6B7280',
-                                fontSize: '12px',
-                                fontWeight: 500
-                            },
-                            formatter: function (val) {
-                                return val.toFixed(0);
-                            }
-                        }
-                    }
-                ],
-                colors: ['#10B981', '#EF4444', '#8B5CF6', '#F59E0B'],
-                legend: {
-                    position: 'top',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    fontFamily: 'Inter, sans-serif',
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    },
-                    itemMargin: {
-                        horizontal: 15,
-                        vertical: 5
-                    }
-                },
-                fill: {
-                    opacity: [0.85, 0.85, 1, 1],
-                    gradient: {
-                        shade: 'light',
-                        type: 'vertical',
-                        shadeIntensity: 0.2,
-                        gradientToColors: ['#34D399', '#F87171', '#A78BFA', '#FBBF24'],
-                        inverseColors: false,
-                        opacityFrom: 0.85,
-                        opacityTo: 0.55,
-                        stops: [0, 100]
-                    }
-                },
-                grid: {
-                    show: true,
-                    borderColor: '#E5E7EB',
-                    strokeDashArray: 3,
-                    position: 'back',
-                    xaxis: {
-                        lines: {
-                            show: false
-                        }
-                    },
-                    yaxis: {
-                        lines: {
-                            show: true
-                        }
-                    }
-                },
-                markers: {
-                    size: [0, 0, 6, 6],
-                    strokeColors: '#fff',
-                    strokeWidth: 2,
-                    hover: {
-                        size: 8
-                    }
-                },
-                tooltip: {
-                    shared: true,
-                    intersect: false,
-                    theme: 'dark',
-                    style: {
-                        fontSize: '14px',
-                        fontFamily: 'Inter, sans-serif'
-                    },
-                    x: {
-                        show: true,
-                        format: 'MMM yyyy'
-                    },
-                    y: [{
-                        formatter: function (val) {
-                            return "Rs. " + new Intl.NumberFormat().format(val);
-                        }
-                    }, {
-                        formatter: function (val) {
-                            return "Rs. " + new Intl.NumberFormat().format(val);
-                        }
-                    }, {
-                        formatter: function (val) {
-                            return "Rs. " + new Intl.NumberFormat().format(val);
-                        }
-                    }, {
-                        formatter: function (val) {
-                            return val + " trips";
-                        }
-                    }]
-                }
-            };
-
-            var monthlyTrendsChart = new ApexCharts(document.querySelector("#monthlyTrendsChart"), monthlyTrendsOptions);
-            monthlyTrendsChart.render();
-
-            // Enhanced Agent Performance Chart with better label handling
-            var agentOptions = {
-                series: [{
-                    name: 'Total Sales',
-                    type: 'column',
-                    data: @json($agentReport->pluck('total_sales'))
-                }, {
-                    name: 'Total Profit',
-                    type: 'column',
-                    data: @json($agentReport->pluck('total_profit'))
-                }, {
-                    name: 'Total Trips',
-                    type: 'line',
-                    data: @json($agentReport->pluck('total_trips'))
-                }],
-                chart: {
-                    height: 600,
-                    type: 'line',
-                    stacked: false,
-                    fontFamily: 'Inter, sans-serif',
-                    background: 'transparent',
-                    toolbar: {
-                        show: true,
-                        offsetX: 0,
-                        offsetY: 0,
-                        tools: {
-                            download: true,
-                            selection: true,
-                            zoom: true,
-                            zoomin: true,
-                            zoomout: true,
-                            pan: true,
-                            reset: true
-                        },
-                        export: {
-                            csv: {
-                                filename: 'agent-performance'
-                            },
-                            svg: {
-                                filename: 'agent-performance'
-                            },
-                            png: {
-                                filename: 'agent-performance'
-                            }
-                        }
-                    },
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 1000,
-                        animateGradually: {
-                            enabled: true,
-                            delay: 150
-                        }
-                    },
-                    dropShadow: {
-                        enabled: true,
-                        enabledOnSeries: [2],
-                        top: 3,
-                        left: 2,
-                        blur: 4,
-                        opacity: 0.1
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        horizontal: false,
-                        columnWidth: '65%',
-                        endingShape: 'rounded',
-                        borderRadius: 8,
-                        borderRadiusApplication: 'end',
-                        borderRadiusWhenStacked: 'last'
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    width: [0, 0, 4],
-                    curve: 'smooth'
-                },
-                xaxis: {
-                    categories: @json($agentReport->pluck('agent_name')),
-                    labels: {
-                        rotate: -45,
-                        rotateAlways: true,
-                        style: {
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            colors: '#6B7280'
-                        },
-                        trim: true,
-                        maxHeight: 120,
-                        hideOverlappingLabels: true,
-                        showDuplicates: false
-                    },
-                    axisBorder: {
-                        show: true,
-                        color: '#E5E7EB'
-                    },
-                    axisTicks: {
-                        show: true,
-                        color: '#E5E7EB'
-                    },
-                    tickAmount: Math.min(@json($agentReport->count()), 10)
-                },
-                yaxis: [
-                    {
-                        title: {
-                            text: 'Amount (PKR)',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                color: '#374151'
-                            }
-                        },
-                        labels: {
-                            style: {
-                                colors: '#6B7280',
-                                fontSize: '12px',
-                                fontWeight: 500
-                            },
-                            formatter: function (val) {
-                                return "Rs. " + new Intl.NumberFormat().format(val);
-                            }
-                        }
-                    },
-                    {
-                        opposite: true,
-                        title: {
-                            text: 'Number of Trips',
-                            style: {
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                color: '#374151'
-                            }
-                        },
-                        labels: {
-                            style: {
-                                colors: '#6B7280',
-                                fontSize: '12px',
-                                fontWeight: 500
-                            },
-                            formatter: function (val) {
-                                return val.toFixed(0);
-                            }
-                        }
-                    }
-                ],
-                colors: ['#4299E1', '#48BB78', '#ECC94B'],
-                legend: {
-                    position: 'top',
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    fontFamily: 'Inter, sans-serif',
-                    markers: {
-                        width: 12,
-                        height: 12,
-                        radius: 6
-                    },
-                    itemMargin: {
-                        horizontal: 15,
-                        vertical: 5
-                    }
-                },
-                fill: {
-                    opacity: [0.85, 0.85, 1],
-                    gradient: {
-                        shade: 'light',
-                        type: 'vertical',
-                        shadeIntensity: 0.2,
-                        gradientToColors: ['#63B3ED', '#68D391', '#F6E05E'],
-                        inverseColors: false,
-                        opacityFrom: 0.85,
-                        opacityTo: 0.55,
-                        stops: [0, 100]
-                    }
-                },
-                grid: {
-                    show: true,
-                    borderColor: '#E5E7EB',
-                    strokeDashArray: 3,
-                    position: 'back',
-                    xaxis: {
-                        lines: {
-                            show: false
-                        }
-                    },
-                    yaxis: {
-                        lines: {
-                            show: true
-                        }
-                    }
-                },
-                markers: {
-                    size: [0, 0, 6],
-                    strokeColors: '#fff',
-                    strokeWidth: 2,
-                    hover: {
-                        size: 8
-                    }
-                },
-                tooltip: {
-                    shared: true,
-                    intersect: false,
-                    theme: 'dark',
-                    style: {
-                        fontSize: '14px',
-                        fontFamily: 'Inter, sans-serif'
-                    },
-                    y: [{
-                        formatter: function (val) {
-                            return "Rs. " + new Intl.NumberFormat().format(val);
-                        }
-                    }, {
-                        formatter: function (val) {
-                            return "Rs. " + new Intl.NumberFormat().format(val);
-                        }
-                    }, {
-                        formatter: function (val) {
-                            return val + " trips";
-                        }
-                    }]
-                }
-            };
-
-            var agentChart = new ApexCharts(document.querySelector("#agentChart"), agentOptions);
-            agentChart.render();
-
-            // Monthly Data Loading Function
-            window.loadMonthlyData = function() {
-                const selectedMonth = document.getElementById('monthSelector').value;
-                if (!selectedMonth) return;
-                
-                // Show loading state
-                document.getElementById('monthlyTrips').textContent = 'Loading...';
-                document.getElementById('monthlyProfit').textContent = 'Loading...';
-                document.getElementById('topAgent').textContent = 'Loading...';
-                
-                fetch(`{{ route('dashboard') }}?month=${selectedMonth}&ajax=1`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Update monthly stats
-                        document.getElementById('monthlyTrips').textContent = data.totalTrips || 0;
-                        document.getElementById('monthlyProfit').textContent = 'Rs. ' + (data.totalProfit ? new Intl.NumberFormat().format(data.totalProfit) : '0');
-                        document.getElementById('topAgent').textContent = data.topAgent || 'No Data';
-                        
-                        // Update table
-                        const tableBody = document.getElementById('monthlyAgentTable');
-                        if (data.agentData && data.agentData.length > 0) {
-                            tableBody.innerHTML = data.agentData.map((agent, index) => `
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                    <td class="px-4 py-3">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
-                                                ${index + 1}
-                                            </div>
-                                            <span class="font-medium text-gray-900 dark:text-gray-100">${agent.agent_name}</span>
+        // Monthly Data Loading Function
+        window.loadMonthlyData = function() {
+            const selectedMonth = document.getElementById('monthSelector').value;
+            if (!selectedMonth) return;
+            
+            const dateField = document.getElementById('date_field').value;
+            
+            document.getElementById('monthlyTrips').textContent = 'Loading...';
+            document.getElementById('monthlyProfit').textContent = 'Loading...';
+            document.getElementById('topAgent').textContent = 'Loading...';
+            
+            fetch(`{{ route('dashboard') }}?month=${selectedMonth}&date_field=${dateField}&ajax=1`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('monthlyTrips').textContent = data.totalTrips || 0;
+                    document.getElementById('monthlyProfit').textContent = 'Rs. ' + (data.totalProfit ? new Intl.NumberFormat().format(data.totalProfit) : '0');
+                    document.getElementById('topAgent').textContent = data.topAgent || 'No Data';
+                    
+                    const tableBody = document.getElementById('monthlyAgentTable');
+                    if (data.agentData && data.agentData.length > 0) {
+                        tableBody.innerHTML = data.agentData.map((agent, index) => `
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                                            ${index + 1}
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3 text-center font-semibold text-blue-600">${agent.total_trips}</td>
-                                    <td class="px-4 py-3 text-center font-semibold text-green-600">Rs. ${new Intl.NumberFormat().format(agent.total_sales)}</td>
-                                    <td class="px-4 py-3 text-center font-semibold text-purple-600">Rs. ${new Intl.NumberFormat().format(agent.total_profit)}</td>
-                                    <td class="px-4 py-3 text-center font-semibold text-orange-600">Rs. ${new Intl.NumberFormat().format(agent.avg_profit)}</td>
-                                </tr>
-                            `).join('');
-                        } else {
-                            tableBody.innerHTML = `
-                                <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                                        No data found for selected month
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error loading monthly data:', error);
-                        document.getElementById('monthlyTrips').textContent = 'Error';
-                        document.getElementById('monthlyProfit').textContent = 'Error';
-                        document.getElementById('topAgent').textContent = 'Error';
-                    });
-            };
-
-            // Load current month data on page load
-            loadMonthlyData();
-
-            // Enhanced responsive behavior
-            window.addEventListener('resize', function() {
-                setTimeout(() => {
-                    const isMobile = window.innerWidth < 640;
-                    const isTablet = window.innerWidth < 1024;
-                    
-                    const responsiveHeight = {
-                        small: isMobile ? 280 : 350,
-                        medium: isMobile ? 350 : isTablet ? 400 : 500,
-                        large: isMobile ? 400 : isTablet ? 500 : 600
-                    };
-
-                    tourTypeChart.updateOptions({
-                        chart: { height: responsiveHeight.small }
-                    });
-                    
-                    bookingStatusChart.updateOptions({
-                        chart: { height: responsiveHeight.small }
-                    });
-                    
-                    monthlyTrendsChart.updateOptions({
-                        chart: { height: responsiveHeight.medium }
-                    });
-                    
-                    agentChart.updateOptions({
-                        chart: { height: responsiveHeight.large }
-                    });
-                }, 100);
-            });
-
-            // Add loading states
-            const charts = [tourTypeChart, bookingStatusChart, monthlyTrendsChart, agentChart];
-            charts.forEach(chart => {
-                chart.addEventListener('dataPointSelection', function(event, chartContext, config) {
-                    console.log('Data point selected:', config);
+                                        <span class="font-medium text-gray-900 dark:text-gray-100">${agent.agent_name}</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center font-semibold text-blue-600">${agent.total_trips}</td>
+                                <td class="px-4 py-3 text-center font-semibold text-green-600">Rs. ${new Intl.NumberFormat().format(agent.total_sales)}</td>
+                                <td class="px-4 py-3 text-center font-semibold text-purple-600">Rs. ${new Intl.NumberFormat().format(agent.total_profit)}</td>
+                                <td class="px-4 py-3 text-center font-semibold text-orange-600">Rs. ${new Intl.NumberFormat().format(agent.avg_profit)}</td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        tableBody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    No data found for selected month
+                                </td>
+                            </tr>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading monthly data:', error);
+                    document.getElementById('monthlyTrips').textContent = 'Error';
+                    document.getElementById('monthlyProfit').textContent = 'Error';
+                    document.getElementById('topAgent').textContent = 'Error';
                 });
-            });
+        };
+
+        document.getElementById('date_field').addEventListener('change', function() {
+            loadMonthlyData();
         });
-    </script>
+
+        loadMonthlyData();
+
+        // Enhanced responsive behavior
+        window.addEventListener('resize', function() {
+            setTimeout(() => {
+                const isMobile = window.innerWidth < 640;
+                const isTablet = window.innerWidth < 1024;
+                
+                const responsiveHeight = {
+                    small: isMobile ? 280 : 350,
+                    medium: isMobile ? 350 : isTablet ? 400 : 500,
+                    large: isMobile ? 400 : isTablet ? 500 : 600
+                };
+
+                tourTypeChart.updateOptions({
+                    chart: { height: responsiveHeight.small }
+                });
+                
+                bookingStatusChart.updateOptions({
+                    chart: { height: responsiveHeight.small }
+                });
+                
+                monthlyTrendsChart.updateOptions({
+                    chart: { height: responsiveHeight.medium }
+                });
+                
+                agentChart.updateOptions({
+                    chart: { height: responsiveHeight.large }
+                });
+            }, 100);
+        });
+    });
+</script>
 
     <style>
         /* Enhanced Custom Styles */

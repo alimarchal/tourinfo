@@ -19,7 +19,7 @@ class DashboardController extends Controller
         // Get date filters from request
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
-        $dateField = $request->get('date_field', 'booking_date'); // Default to booking_date
+        $dateField = $request->get('date_field', 'booking_date');
 
         // Set default date range if not provided
         if (!$startDate || !$endDate) {
@@ -33,27 +33,55 @@ class DashboardController extends Controller
             $baseQuery->whereBetween($dateField, [$startDate, $endDate]);
         }
 
-        // Get overall statistics with corrected profit calculation
+        // Get overall statistics - FIXED: Handle NULL values properly
         $totalTrips = $baseQuery->count();
-        $totalRevenue = $baseQuery->sum('total_cost') ?? 0;
-        $totalExpenses = $baseQuery->sum('total_expenses') ?? 0;
-        $totalProfit = $totalRevenue - $totalExpenses;
+        $totalRevenue = $baseQuery->whereNotNull('total_cost')->sum('total_cost') ?? 0;
+        $totalExpenses = $baseQuery->whereNotNull('total_expenses')->sum('total_expenses') ?? 0;
+        $totalProfit = $baseQuery->whereNotNull('profit')->sum('profit') ?? 0;
         $avgProfitMargin = $totalRevenue > 0 ? round(($totalProfit / $totalRevenue) * 100, 2) : 0;
 
-        // Domestic vs International Tours
-        $tourTypeStats = $baseQuery->clone()
-            ->select(
-                'tour_type',
-                DB::raw('COUNT(*) as count'),
-                DB::raw('COALESCE(SUM(total_cost), 0) as revenue'),
-                DB::raw('COALESCE(SUM(profit), 0) as profit')
-            )
-            ->whereNotNull('tour_type')
-            ->groupBy('tour_type')
-            ->get();
+        // FIXED: Tour Type Distribution - Handle NULL values separately
+        $tourTypeStats = collect();
+        
+        // Get Domestic trips
+        $domesticStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where('tour_type', 'Domestic')
+            ->selectRaw('
+                "Domestic" as tour_type,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue,
+                COALESCE(SUM(profit), 0) as profit
+            ')
+            ->first();
+        if ($domesticStats) $tourTypeStats->push($domesticStats);
+        
+        // Get International trips
+        $internationalStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where('tour_type', 'International')
+            ->selectRaw('
+                "International" as tour_type,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue,
+                COALESCE(SUM(profit), 0) as profit
+            ')
+            ->first();
+        if ($internationalStats) $tourTypeStats->push($internationalStats);
+        
+        // Get NULL/empty trips
+        $notSetStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where(function($q) {
+                $q->whereNull('tour_type')->orWhere('tour_type', '');
+            })
+            ->selectRaw('
+                "Not Set" as tour_type,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue,
+                COALESCE(SUM(profit), 0) as profit
+            ')
+            ->first();
+        if ($notSetStats && $notSetStats->count > 0) $tourTypeStats->push($notSetStats);
 
-        // Ensure we have both domestic and international data
-        $tourTypes = ['Domestic', 'International'];
+        $tourTypes = ['Domestic', 'International', 'Not Set'];
         $tourTypeCollection = collect($tourTypes)->map(function ($type) use ($tourTypeStats) {
             $existing = $tourTypeStats->firstWhere('tour_type', $type);
             return $existing ?: (object) [
@@ -64,18 +92,45 @@ class DashboardController extends Controller
             ];
         });
 
-        // Booking Status Distribution
-        $bookingStatusStats = $baseQuery->clone()
-            ->select(
-                'booking_status',
-                DB::raw('COUNT(*) as count'),
-                DB::raw('COALESCE(SUM(total_cost), 0) as revenue')
-            )
-            ->groupBy('booking_status')
-            ->get();
+        // FIXED: Booking Status Distribution - Handle NULL values separately  
+        $bookingStatusStats = collect();
+        
+        // Get Pending bookings
+        $pendingStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where('booking_status', 'Pending')
+            ->selectRaw('
+                "Pending" as booking_status,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue
+            ')
+            ->first();
+        if ($pendingStats) $bookingStatusStats->push($pendingStats);
+        
+        // Get Booked bookings
+        $bookedStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where('booking_status', 'Booked')
+            ->selectRaw('
+                "Booked" as booking_status,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue
+            ')
+            ->first();
+        if ($bookedStats) $bookingStatusStats->push($bookedStats);
+        
+        // Get NULL/empty bookings
+        $notSetBookingStats = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->where(function($q) {
+                $q->whereNull('booking_status')->orWhere('booking_status', '');
+            })
+            ->selectRaw('
+                "Not Set" as booking_status,
+                COUNT(*) as count,
+                COALESCE(SUM(total_cost), 0) as revenue
+            ')
+            ->first();
+        if ($notSetBookingStats && $notSetBookingStats->count > 0) $bookingStatusStats->push($notSetBookingStats);
 
-        // Ensure we have both pending and booked data
-        $statuses = ['Pending', 'Booked'];
+        $statuses = ['Pending', 'Booked', 'Not Set'];
         $bookingStatusCollection = collect($statuses)->map(function ($status) use ($bookingStatusStats) {
             $existing = $bookingStatusStats->firstWhere('booking_status', $status);
             return $existing ?: (object) [
@@ -85,25 +140,22 @@ class DashboardController extends Controller
             ];
         });
 
-        // Monthly trends based on selected date range and field
+        // Monthly trends - FIXED: Use direct query
         $startMonth = Carbon::parse($startDate);
         $endMonth = Carbon::parse($endDate);
 
-        $monthlyTrends = $baseQuery->clone()
+        $monthlyTrends = Trip::whereBetween($dateField, [$startDate, $endDate])
             ->select(
                 DB::raw("DATE_FORMAT({$dateField}, '%Y-%m') as month"),
                 DB::raw('COUNT(*) as total_trips'),
-                DB::raw('COALESCE(SUM(total_cost), 0) as total_revenue'),
-                DB::raw('COALESCE(SUM(total_expenses), 0) as total_expenses'),
-                DB::raw('COALESCE(SUM(profit), 0) as total_profit')
+                DB::raw('COALESCE(SUM(CASE WHEN total_cost IS NOT NULL THEN total_cost ELSE 0 END), 0) as total_revenue'),
+                DB::raw('COALESCE(SUM(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as total_profit')
             )
-            ->whereBetween($dateField, [$startDate, $endDate])
             ->groupBy('month')
             ->orderBy('month')
             ->get()
             ->keyBy('month');
 
-        // Create complete month range
         $monthlyData = collect();
         $current = $startMonth->copy();
 
@@ -115,38 +167,76 @@ class DashboardController extends Controller
                 'month' => $monthKey,
                 'total_trips' => 0,
                 'total_revenue' => 0,
-                'total_expenses' => 0,
                 'total_profit' => 0
             ]);
 
             $current->addMonth();
         }
 
-        // Agent-wise report data with proper profit calculation
-        $agentReport = $baseQuery->clone()
+        // FIXED: Agent-wise report - Use direct query
+        $agentReport = Trip::whereBetween($dateField, [$startDate, $endDate])
             ->select(
                 'agent_name',
                 DB::raw('COUNT(*) as total_trips'),
-                DB::raw('COALESCE(SUM(total_cost), 0) as total_sales'),
-                DB::raw('COALESCE(SUM(total_expenses), 0) as total_expenses'),
-                DB::raw('COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit'),
-                DB::raw('COALESCE(AVG(total_cost - total_expenses), 0) as avg_profit')
+                DB::raw('COALESCE(SUM(CASE WHEN total_cost IS NOT NULL AND total_cost > 0 THEN total_cost ELSE 0 END), 0) as total_sales'),
+                DB::raw('COALESCE(SUM(CASE WHEN total_expenses IS NOT NULL THEN total_expenses ELSE 0 END), 0) as total_expenses'),
+                DB::raw('COALESCE(SUM(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as total_profit'),
+                DB::raw('COALESCE(AVG(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as avg_profit')
             )
             ->whereNotNull('agent_name')
-            ->whereNotNull('total_cost')
+            ->where('agent_name', '!=', '')
             ->groupBy('agent_name')
             ->orderByDesc('total_profit')
-            ->get();
+            ->get()
+            ->map(function ($agent) {
+                // FIXED: More robust data validation
+                $totalSales = (float) $agent->total_sales;
+                $totalProfit = (float) $agent->total_profit;
+                
+                // If profit exceeds sales, cap it at sales value
+                if ($totalProfit > $totalSales && $totalSales > 0) {
+                    \Log::warning("Data integrity issue: Agent {$agent->agent_name} has profit ({$totalProfit}) > sales ({$totalSales}). Capping profit to sales.");
+                    $agent->total_profit = $totalSales;
+                    $totalProfit = $totalSales;
+                }
+                
+                // Handle cases where sales is 0 but profit exists (data error)
+                if ($totalSales == 0 && $totalProfit > 0) {
+                    \Log::warning("Data integrity issue: Agent {$agent->agent_name} has profit ({$totalProfit}) but no sales. Setting profit to 0.");
+                    $agent->total_profit = 0;
+                    $totalProfit = 0;
+                }
+                
+                // Calculate profit margin
+                $agent->profit_margin = $totalSales > 0 ? 
+                    round(($totalProfit / $totalSales) * 100, 2) : 0;
+                
+                // Ensure all values are properly formatted numbers
+                $agent->total_sales = round($totalSales, 2);
+                $agent->total_profit = round($totalProfit, 2);
+                $agent->total_expenses = round((float) $agent->total_expenses, 2);
+                $agent->avg_profit = round((float) $agent->avg_profit, 2);
+                
+                return $agent;
+            })
+            ->filter(function ($agent) {
+                // Filter out agents with no meaningful data
+                return $agent->total_trips > 0;
+            });
 
-        // Recent trips (within date range)
-        $recentTrips = $baseQuery->clone()
+        // Recent trips - FIXED: Use direct query
+        $recentTrips = Trip::whereBetween($dateField, [$startDate, $endDate])
+            ->whereNotNull('trip_name')
             ->latest('created_at')
             ->take(5)
             ->get();
 
-        // Top performing tours by profit (within date range)
-        $topTours = $baseQuery->clone()
+        // Top performing tours - FIXED: Use direct query
+        $topTours = Trip::whereBetween($dateField, [$startDate, $endDate])
             ->select('trip_name', 'profit', 'tour_type', 'booking_status')
+            ->whereNotNull('profit')
+            ->whereNotNull('trip_name')
+            ->where('profit', '>', 0)
             ->orderByDesc('profit')
             ->take(5)
             ->get();
@@ -172,36 +262,48 @@ class DashboardController extends Controller
     private function getMonthlyData(Request $request)
     {
         $month = $request->get('month');
+        $dateField = $request->get('date_field', 'booking_date');
         $startOfMonth = Carbon::parse($month)->startOfMonth();
         $endOfMonth = Carbon::parse($month)->endOfMonth();
 
-        // Get monthly statistics with proper profit calculation
-        $monthlyStats = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+        // FIXED: Better NULL handling in monthly data
+        $monthlyStats = Trip::whereBetween($dateField, [$startOfMonth, $endOfMonth])
             ->selectRaw('
                 COUNT(*) as total_trips,
-                COALESCE(SUM(total_cost), 0) as total_revenue,
-                COALESCE(SUM(total_expenses), 0) as total_expenses,
-                COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit
+                COALESCE(SUM(CASE WHEN total_cost IS NOT NULL THEN total_cost ELSE 0 END), 0) as total_revenue,
+                COALESCE(SUM(CASE WHEN total_expenses IS NOT NULL THEN total_expenses ELSE 0 END), 0) as total_expenses,
+                COALESCE(SUM(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as total_profit
             ')
             ->first();
 
-        // Get agent-wise data for the month with proper profit calculation
-        $agentData = Trip::whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+        $agentData = Trip::whereBetween($dateField, [$startOfMonth, $endOfMonth])
             ->select(
                 'agent_name',
                 DB::raw('COUNT(*) as total_trips'),
-                DB::raw('COALESCE(SUM(total_cost), 0) as total_sales'),
-                DB::raw('COALESCE(SUM(total_expenses), 0) as total_expenses'),
-                DB::raw('COALESCE(SUM(total_cost) - SUM(total_expenses), 0) as total_profit'),
-                DB::raw('COALESCE(AVG(total_cost - total_expenses), 0) as avg_profit')
+                DB::raw('COALESCE(SUM(CASE WHEN total_cost IS NOT NULL AND total_cost > 0 THEN total_cost ELSE 0 END), 0) as total_sales'),
+                DB::raw('COALESCE(SUM(CASE WHEN total_expenses IS NOT NULL THEN total_expenses ELSE 0 END), 0) as total_expenses'),
+                DB::raw('COALESCE(SUM(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as total_profit'),
+                DB::raw('COALESCE(AVG(CASE WHEN profit IS NOT NULL THEN profit ELSE 0 END), 0) as avg_profit')
             )
             ->whereNotNull('agent_name')
-            ->whereNotNull('total_cost')
+            ->where('agent_name', '!=', '')
             ->groupBy('agent_name')
             ->orderByDesc('total_trips')
-            ->get();
+            ->get()
+            ->map(function ($agent) {
+                // FIXED: Same validation for monthly data
+                $totalSales = (float) $agent->total_sales;
+                $totalProfit = (float) $agent->total_profit;
+                
+                if ($totalProfit > $totalSales && $totalSales > 0) {
+                    $agent->total_profit = $totalSales;
+                } elseif ($totalSales == 0 && $totalProfit > 0) {
+                    $agent->total_profit = 0;
+                }
+                
+                return $agent;
+            });
 
-        // Find top agent
         $topAgent = $agentData->first();
 
         return response()->json([
