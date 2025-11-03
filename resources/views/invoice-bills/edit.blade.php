@@ -8,53 +8,69 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="p-6 lg:p-8 bg-white dark:bg-gray-800 dark:bg-gradient-to-bl dark:from-gray-700/50 dark:via-transparent border-b border-gray-200 dark:border-gray-700">
+                <div
+                    class="p-6 lg:p-8 bg-white dark:bg-gray-800 dark:bg-gradient-to-bl dark:from-gray-700/50 dark:via-transparent border-b border-gray-200 dark:border-gray-700">
                     <form action="{{ route('invoice-bills.update', $invoiceBill) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <x-label for="trip_id" value="{{ __('Trip') }}" />
-                                <select id="trip_id" name="trip_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                <select id="trip_id" name="trip_id"
+                                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    required>
                                     <option value="">Select a trip</option>
                                     @foreach($trips as $trip)
-                                        <option value="{{ $trip->id }}" @if(old('trip_id', $invoiceBill->trip_id) == $trip->id) selected @endif>{{ $trip->trip_name }}</option>
+                                    <option value="{{ $trip->id }}" @if(old('trip_id', $invoiceBill->trip_id) ==
+                                        $trip->id) selected @endif>ID: {{ $trip->id }} - {{ $trip->trip_name }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div>
                                 <x-label for="amount" value="{{ __('Amount (PKR)') }}" />
-                                <x-input id="amount" name="amount" type="number" class="mt-1 block w-full" min="1" step="0.01" value="{{ old('amount', $invoiceBill->amount) }}" required />
+                                <x-input id="amount" name="amount" type="number" class="mt-1 block w-full" min="1"
+                                    step="0.01" value="{{ old('amount', $invoiceBill->amount) }}" required />
                             </div>
 
                             <div>
-                                <x-label for="transaction_particulars" value="{{ __('Transaction Particulars (Optional)') }}" />
-                                <select id="transaction_particulars" name="transaction_particulars" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <x-label for="transaction_particulars"
+                                    value="{{ __('Transaction Particulars (Optional)') }}" />
+                                <select id="transaction_particulars" name="transaction_particulars"
+                                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                     <option value="">Select purpose (optional)</option>
                                     @foreach($transactionParticulars as $key => $value)
-                                        <option value="{{ $key }}" @if(old('transaction_particulars', $invoiceBill->transaction_particulars) == $key) selected @endif>{{ $value }}</option>
+                                    <option value="{{ $key }}" @if(old('transaction_particulars', $invoiceBill->
+                                        transaction_particulars) == $key) selected @endif>{{ $value }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
                             <div>
                                 <x-label for="transaction_date" value="{{ __('Transaction Date (Optional)') }}" />
-                                <x-input id="transaction_date" name="transaction_date" type="datetime-local" class="mt-1 block w-full" value="{{ old('transaction_date', $invoiceBill->transaction_date ? $invoiceBill->transaction_date->format('Y-m-d\TH:i') : '') }}" />
+                                <x-input id="transaction_date" name="transaction_date" type="datetime-local"
+                                    class="mt-1 block w-full"
+                                    value="{{ old('transaction_date', $invoiceBill->transaction_date ? $invoiceBill->transaction_date->format('Y-m-d\TH:i') : '') }}" />
                             </div>
 
                             <div>
                                 <x-label for="status" value="{{ __('Status') }}" />
-                                <select id="status" name="status" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                                    <option value="pending" @if(old('status', $invoiceBill->status) == 'pending') selected @endif>Pending</option>
-                                    <option value="paid" @if(old('status', $invoiceBill->status) == 'paid') selected @endif>Paid</option>
-                                    <option value="cancelled" @if(old('status', $invoiceBill->status) == 'cancelled') selected @endif>Cancelled</option>
+                                <select id="status" name="status"
+                                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    required>
+                                    <option value="pending" @if(old('status', $invoiceBill->status) == 'pending')
+                                        selected @endif>Pending</option>
+                                    <option value="paid" @if(old('status', $invoiceBill->status) == 'paid') selected
+                                        @endif>Paid</option>
+                                    <option value="cancelled" @if(old('status', $invoiceBill->status) == 'cancelled')
+                                        selected @endif>Cancelled</option>
                                 </select>
                             </div>
 
                             <div class="col-span-2">
                                 <x-label for="details" value="{{ __('Details (Optional)') }}" />
-                                <textarea id="details" name="details" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('details', $invoiceBill->details) }}</textarea>
+                                <textarea id="details" name="details" rows="4"
+                                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('details', $invoiceBill->details) }}</textarea>
                             </div>
                         </div>
 

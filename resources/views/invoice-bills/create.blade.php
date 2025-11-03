@@ -20,7 +20,8 @@
                                     required>
                                     <option value="">Select a trip</option>
                                     @foreach($trips as $trip)
-                                    <option value="{{ $trip->id }}">{{ $trip->trip_name }}</option>
+                                    <option value="{{ $trip->id }}">ID: {{ $trip->id }} - {{ $trip->trip_name }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>

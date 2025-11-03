@@ -49,7 +49,7 @@
             style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #e5e7eb; padding-bottom:10px;">
             <div style="display:flex; align-items:center; gap:12px;">
                 <img src="{{ public_path('icons-images/logo-imusafir.jpeg') }}" alt="Logo"
-                    style="height:48px; width:auto; object-fit:contain;">
+                    style="height:80px; width:auto; object-fit:contain;">
                 <div style="text-align:left;">
                     <div style="font-size:18px; font-weight:700; color:#111827;">{{ config('app.name') }}</div>
                     <div style="font-size:10px; color:#6b7280;">Invoice</div>

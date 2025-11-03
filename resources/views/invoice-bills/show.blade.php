@@ -250,8 +250,8 @@
                         try {
                             const logoUrl = @json(asset('icons-images/logo-imusafir.jpeg'));
                             const logoData = await loadImageAsDataURL(logoUrl);
-                            // width ~100, maintain reasonable height
-                            doc.addImage(logoData, 'JPEG', 40, 24, 100, 36);
+                            // Larger logo: width ~140, height ~50
+                            doc.addImage(logoData, 'JPEG', 35, 20, 140, 50);
                         } catch(e) {
                             log('logo load skipped', e.message);
                         }
@@ -260,9 +260,9 @@
                         doc.setFont('helvetica','bold');
                         doc.setFontSize(18);
                         doc.setTextColor(20);
-                        doc.text('INVOICE', pageWidth/2, 60, { align: 'center' });
+                        doc.text('INVOICE', pageWidth/2, 80, { align: 'center' });
                         
-                        y = 90;
+                        y = 100;
                         doc.setFontSize(10);
                         doc.setFont('helvetica','normal');
                         doc.setTextColor(60);
