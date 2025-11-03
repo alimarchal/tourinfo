@@ -1,22 +1,65 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Invoice</title>
     <style>
-        body { font-family: sans-serif; }
-        .container { width: 100%; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .content { margin-bottom: 20px; }
-        .table { width: 100%; border-collapse: collapse; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; }
-        .table th { background-color: #f2f2f2; }
-        .text-right { text-align: right; }
+        body {
+            font-family: sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            margin-bottom: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .text-right {
+            text-align: right;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Invoice</h1>
+        <div class="header"
+            style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #e5e7eb; padding-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <img src="{{ public_path('icons-images/logo-imusafir.jpeg') }}" alt="Logo"
+                    style="height:48px; width:auto; object-fit:contain;">
+                <div style="text-align:left;">
+                    <div style="font-size:18px; font-weight:700; color:#111827;">{{ config('app.name') }}</div>
+                    <div style="font-size:10px; color:#6b7280;">Invoice</div>
+                </div>
+            </div>
+            <div style="text-align:right; font-size:12px; color:#374151;">
+                <div><strong>Invoice #:</strong> {{ $invoiceBill->id }}</div>
+                <div><strong>Date:</strong> {{ $invoiceBill->created_at->format('Y-m-d') }}</div>
+                <div><strong>Status:</strong> {{ strtoupper($invoiceBill->status) }}</div>
+            </div>
         </div>
         <div class="content">
             <p><strong>Invoice ID:</strong> {{ $invoiceBill->id }}</p>
@@ -43,10 +86,19 @@
             <p><strong>Details:</strong></p>
             <p>{{ $invoiceBill->details }}</p>
         </div>
-        <div class="content">
-            <p><strong>QR Code:</strong></p>
-            <img src="data:image/png;base64,{{ base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(150)->generate($invoiceBill->payload)) }}" alt="QR Code">
+        <div class="content" style="margin-top: 20px;">
+            <p><strong>Payment Instructions</strong></p>
+            <p style="margin:8px 0;">You can make your payment using Easypaisa, JazzCash, UPaisa, or any Pakistan bank
+                app by scanning the QR code shown on the invoice detail page.</p>
+            <p style="margin:8px 0;">If you prefer a manual bank transfer, please use the details below and include your
+                Invoice # {{ $invoiceBill->id }} in the transfer reference:</p>
+            <ul style="margin:8px 0 0 18px;">
+                <li>Bank Name: {{ config('app.bank_name') }}</li>
+                <li>IBAN: {{ config('app.iban') }}</li>
+                <li>Payment Due Date: {{ optional($invoiceBill->transaction_date)->format('Y-m-d H:i') ?? '—' }}</li>
+            </ul>
         </div>
     </div>
 </body>
+
 </html>

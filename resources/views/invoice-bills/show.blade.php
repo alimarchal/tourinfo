@@ -14,6 +14,24 @@
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">QR Code</h3>
                             <div class="mt-4" id="qrcode"></div>
+                            <div
+                                class="mt-4 text-sm text-gray-700 dark:text-gray-200 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 rounded-lg p-3">
+                                <p class="font-semibold text-indigo-900 dark:text-indigo-200 mb-1">How to Pay</p>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>Use Easypaisa, JazzCash, UPaisa, or any Pakistan bank app to scan the QR code
+                                        and pay instantly.</li>
+                                    <li>Prefer manual transfer? Use the details below and add your Invoice # in transfer
+                                        reference:</li>
+                                </ul>
+                                <div class="mt-2 grid grid-cols-1 gap-1 text-[13px]">
+                                    <div><span class="font-medium">Bank Name:</span> {{ config('app.bank_name') }}</div>
+                                    <div><span class="font-medium">IBAN:</span> {{ config('app.iban') }}</div>
+                                    <div><span class="font-medium">Payment Due Date:</span> {{
+                                        $invoiceBill->transaction_date ?
+                                        $invoiceBill->transaction_date->timezone('Asia/Karachi')->format('d-m-Y h:i:s
+                                        A') : '—' }}</div>
+                                </div>
+                            </div>
                         </div>
                         <div>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Details</h3>
@@ -32,8 +50,9 @@
                                 <div>
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Transaction Date</p>
                                     <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{
-                                        $invoiceBill->transaction_date ? $invoiceBill->transaction_date->format('Y-m-d
-                                        H:i') : '-' }}</p>
+                                        $invoiceBill->transaction_date ?
+                                        $invoiceBill->transaction_date->timezone('Asia/Karachi')->format('d-m-Y h:i:s
+                                        A') : '-' }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</p>
@@ -45,7 +64,7 @@
                                     </p>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400"></p>Payload</p>
+                                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Payload</p>
                                     <p class="text-sm font-mono text-gray-700 dark:text-gray-300 break-all">{{
                                         $invoiceBill->payload }}</p>
                                 </div>
@@ -73,8 +92,8 @@
                                     <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Check-in Date</p>
                                     <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{
                                         $invoiceBill->trip->check_in_date ?
-                                        \Carbon\Carbon::parse($invoiceBill->trip->check_in_date)->format('Y-m-d') : '-'
-                                        }}</p>
+                                        \Carbon\Carbon::parse($invoiceBill->trip->check_in_date)->timezone('Asia/Karachi')->format('d-m-Y
+                                        h:i:s A') : '-' }}</p>
                                 </div>
                                 @if($invoiceBill->details)
                                 <div>
@@ -185,12 +204,21 @@
                         
                         const { jsPDF } = window.jspdf;
                         
+                        // Helper to load logo as data URL
+                        async function loadImageAsDataURL(url){
+                            const res = await fetch(url, { credentials: 'same-origin' });
+                            if(!res.ok) throw new Error('Logo fetch failed: '+res.status);
+                            const blob = await res.blob();
+                            return await new Promise((resolve)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.readAsDataURL(blob); });
+                        }
+                        
                         // Invoice data from blade
                         const invoice = {
                             id: {{ $invoiceBill->id }},
                             amount: {{ $invoiceBill->amount }},
                             transaction_particulars: @json($invoiceBill->transaction_particulars),
                             transaction_date: @json($invoiceBill->transaction_date),
+                            due_date: @json($invoiceBill->transaction_date),
                             status: @json($invoiceBill->status),
                             details: @json($invoiceBill->details),
                             payload: @json($invoiceBill->payload),
@@ -203,7 +231,11 @@
                                 guest: @json($invoiceBill->trip->guest_name),
                                 check_in: @json($invoiceBill->trip->check_in_date)
                             },
-                            created_at: @json($invoiceBill->created_at)
+                            created_at: @json($invoiceBill->created_at),
+                            bank: {
+                                name: @json(config('app.bank_name')),
+                                iban: @json(config('app.iban'))
+                            }
                         };
                         
                         log('data prepared', invoice); 
@@ -214,13 +246,23 @@
                         const pageHeight = doc.internal.pageSize.getHeight();
                         let y = 60;
                         
+                        // Try to add brand logo (top-left)
+                        try {
+                            const logoUrl = @json(asset('icons-images/logo-imusafir.jpeg'));
+                            const logoData = await loadImageAsDataURL(logoUrl);
+                            // width ~100, maintain reasonable height
+                            doc.addImage(logoData, 'JPEG', 40, 24, 100, 36);
+                        } catch(e) {
+                            log('logo load skipped', e.message);
+                        }
+                        
                         // Header
                         doc.setFont('helvetica','bold');
                         doc.setFontSize(18);
                         doc.setTextColor(20);
-                        doc.text('INVOICE', pageWidth/2, y, { align: 'center' });
+                        doc.text('INVOICE', pageWidth/2, 60, { align: 'center' });
                         
-                        y += 30;
+                        y = 90;
                         doc.setFontSize(10);
                         doc.setFont('helvetica','normal');
                         doc.setTextColor(60);
@@ -289,6 +331,13 @@
                         doc.text('TOTAL:', pageWidth - 200, y);
                         doc.text('PKR ' + invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}), pageWidth - 50, y, { align: 'right' });
                         
+                        // Due Date
+                        y += 20;
+                        doc.setFont('helvetica','normal');
+                        doc.setFontSize(10);
+                        doc.setTextColor(60);
+                        doc.text('Payment Due Date: ' + (invoice.due_date ? fmt(invoice.due_date) : '-'), pageWidth - 50, y, { align: 'right' });
+                        
                         // Additional details
                         if(invoice.details) {
                             y += 40;
@@ -337,18 +386,31 @@
                             const qrImg = qrContainer.querySelector('img');
                             if(qrImg && qrImg.src) {
                                 doc.addImage(qrImg.src, 'PNG', 40, y, 120, 120);
-                                
-                                // Add payload text next to QR
-                                doc.setFont('helvetica','normal');
-                                doc.setFontSize(7);
-                                doc.setTextColor(100);
-                                const payloadLines = doc.splitTextToSize('Payload: ' + invoice.payload, pageWidth - 200);
-                                doc.text(payloadLines, 180, y + 20);
                             }
                             
                             document.body.removeChild(qrContainer);
                             y += 140;
                         }
+                        
+                        // Payment Instructions
+                        doc.setFont('helvetica','bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30);
+                        doc.text('PAYMENT INSTRUCTIONS', 40, y);
+                        
+                        y += 16;
+                        doc.setFont('helvetica','normal');
+                        doc.setFontSize(10);
+                        doc.setTextColor(60);
+                        const instructions = [
+                            'You can make your payment using Easypaisa, JazzCash, UPaisa, or any Pakistan bank app by scanning the QR code above.',
+                            'If you prefer a manual bank transfer, please use the details below and include your Invoice # ' + invoice.id + ' in the transfer reference:',
+                            'Bank Name: ' + (invoice.bank.name || '-'),
+                            'IBAN: ' + (invoice.bank.iban || '-')
+                        ];
+                        const instLines = doc.splitTextToSize(instructions.join('\n'), pageWidth - 80);
+                        doc.text(instLines, 40, y);
+                        y += instLines.length * 12 + 10;
                         
                         // Footer
                         doc.setFont('helvetica','normal');
