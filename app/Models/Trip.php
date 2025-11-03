@@ -10,6 +10,7 @@ class Trip extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'trip_name',
         'guest_name',
         'guest_email',
@@ -24,6 +25,12 @@ class Trip extends Model
         'tour_type',
         'path_attachment'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // Trip.php (Model)
     public function comments()
     {

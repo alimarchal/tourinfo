@@ -15,9 +15,9 @@ class InvoiceBillController extends Controller
     public function index()
     {
         $invoiceBills = QueryBuilder::for(InvoiceBill::class)
+            ->where('user_id', Auth::id()) // Only show records for the current user
             ->allowedFilters([
                 AllowedFilter::exact('trip_id'),
-                AllowedFilter::exact('user_id'),
                 AllowedFilter::exact('status'),
                 AllowedFilter::callback('date_from', function ($query, $value) {
                     $query->whereDate('transaction_date', '>=', $value);
@@ -30,10 +30,9 @@ class InvoiceBillController extends Controller
             ->latest()
             ->paginate(10);
 
-        $trips = Trip::all();
-        $users = User::all();
+        $trips = Trip::where('user_id', Auth::id())->get();
 
-        return view('invoice-bills.index', compact('invoiceBills', 'trips', 'users'));
+        return view('invoice-bills.index', compact('invoiceBills', 'trips'));
     }
 
     public function create()
@@ -219,6 +218,12 @@ class InvoiceBillController extends Controller
     {
         $invoiceBill->delete();
         return redirect()->route('invoice-bills.index')->with('success', 'Invoice Bill deleted successfully.');
+    }
+
+    public function downloadPDF(InvoiceBill $invoiceBill)
+    {
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice-bills.pdf', compact('invoiceBill'));
+        return $pdf->download('invoice-' . $invoiceBill->id . '.pdf');
     }
 
     private function crc16_ccitt($data)

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateTripRequest;
 use App\Models\Trip;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -109,6 +110,8 @@ class TripController extends Controller
                 $file_path = $request->file('path_attachment_create')->store('path_attachment_create', 'public');
                 $request->merge(['path_attachment' => $file_path]);
             }
+
+            $request->merge(['user_id' => Auth::id()]); // Add user_id
 
             $trip = Trip::create($request->all());
             DB::commit();

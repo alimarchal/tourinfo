@@ -49,15 +49,6 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label for="filter_user_id" class="block text-sm font-medium text-gray-700">User</label>
-                            <select name="filter[user_id]" id="filter_user_id" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                <option value="">All Users</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ request('filter.user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
 
                         <div>
                             <label for="filter_status" class="block text-sm font-medium text-gray-700">Status</label>
