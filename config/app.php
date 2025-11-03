@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'iban' => env('APP_IBAN', 'PK39HABB0011657901223903'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

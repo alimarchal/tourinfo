@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raast P2P QR Code Generator - SBP Standard Compliant</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .sbp-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: #0f7938;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .iban-info {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .iban-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .iban-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #718096;
+        }
+
+        .info-value {
+            color: #2d3748;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .qr-container {
+            margin-top: 30px;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .qr-container.active {
+            display: block;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .qr-info h3 {
+            color: #2d3748;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .qr-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+
+        .qr-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .qr-info-label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .qr-info-value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .payload-display {
+            margin-top: 15px;
+            padding: 12px;
+            background: #2d3748;
+            color: #10b981;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .validation-success {
+            border-color: #10b981 !important;
+        }
+
+        .validation-error {
+            border-color: #e53e3e !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="sbp-logo">SBP</div>
+            <h1>Raast P2P QR Generator</h1>
+            <div class="subtitle">State Bank of Pakistan Compliant QR Code</div>
+        </div>
+
+        <form id="qrForm">
+            <div class="form-group">
+                <label for="iban">IBAN <span class="required">*</span></label>
+                <input type="text" id="iban" placeholder="e.g., PK53UNIL0109000222405412" maxlength="26" required>
+                <div class="hint-text">Enter a valid Pakistani IBAN (24-25 characters starting with PK)</div>
+                <div class="error-message" id="ibanError">Please enter a valid Pakistani IBAN starting with PK</div>
+                
+                <div class="iban-info" id="ibanInfo" style="display: none;">
+                    <div class="iban-info-item">
+                        <span class="info-label">Bank Code:</span>
+                        <span class="info-value" id="bankCode">-</span>
+                    </div>
+                    <div class="iban-info-item">
+                        <span class="info-label">Account Number:</span>
+                        <span class="info-value" id="accountNumber">-</span>
+                    </div>
+                    <div class="iban-info-item">
+                        <span class="info-label">Check Digits:</span>
+                        <span class="info-value" id="checkDigits">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount (PKR) <span class="required">*</span></label>
+                <input type="number" id="amount" placeholder="Enter amount in PKR" min="1" step="0.01" required>
+                <div class="error-message" id="amountError">Amount must be greater than 0</div>
+            </div>
+
+            <div class="form-group">
+                <label for="particulars">Transaction Particulars - Optional</label>
+                <select id="particulars">
+                    <option value="">Select purpose (optional)</option>
+                    <option value="Bill Payment">Bill Payment - Internet/Cable/Utility bills</option>
+                    <option value="Donations/Charity/Zakat">Donations/Charity/Zakat - NGOs/Social welfare</option>
+                    <option value="Educational Payment">Educational Payment - School/College fees</option>
+                    <option value="Transfer to Family & Friends">Transfer to Family & Friends</option>
+                    <option value="Insurance/Takaful">Insurance/Takaful - Premium payments</option>
+                    <option value="Investments">Investments - Mutual funds/Business</option>
+                    <option value="Loan/Credit Card Payments">Loan/Credit Card Payments</option>
+                    <option value="Medical Expenses">Medical Expenses - Hospital/Clinic/Pharmacy</option>
+                    <option value="Food & Groceries">Food & Groceries Purchases</option>
+                    <option value="Clothing & Accessories">Clothing & Accessories</option>
+                    <option value="Subscription/Membership">Subscription/Membership/Rental</option>
+                    <option value="Salaries/Wages">Salaries/Wages - Domestic staff</option>
+                    <option value="Travelling">Travelling - Transport/Hotel expenses</option>
+                    <option value="Vendor/Supplier Payment">Vendor/Supplier/Business Payment</option>
+                    <option value="Others">Others</option>
+                </select>
+                <div class="hint-text">Select from SBP approved purposes</div>
+            </div>
+
+            <div class="form-group">
+                <label for="expiry">QR Code Expiry Date - Optional</label>
+                <input type="text" id="expiry" placeholder="e.g., 310820251150" maxlength="12">
+                <div class="hint-text">Enter DDMMYYYYhhmm format (Day-Month-Year-Hour-Minute)</div>
+            </div>
+
+            <button type="submit" class="generate-btn" id="generateBtn">Generate QR Code</button>
+        </form>
+
+        <div class="qr-container" id="qrContainer">
+            <div id="qrcode"></div>
+            <div class="success-badge">✓ SBP Standard Compliant</div>
+            
+            <div class="qr-info">
+                <h3>QR Code Details</h3>
+                <div class="qr-info-item">
+                    <span class="qr-info-label">Standard:</span>
+                    <span class="qr-info-value">P2P Raast</span>
+                </div>
+                <div class="qr-info-item">
+                    <span class="qr-info-label">Scheme ID:</span>
+                    <span class="qr-info-value">00 (Raast P2P)</span>
+                </div>
+                <div class="qr-info-item">
+                    <span class="qr-info-label">Type:</span>
+                    <span class="qr-info-value">Dynamic (with amount)</span>
+                </div>
+                <div class="qr-info-item">
+                    <span class="qr-info-label">IBAN:</span>
+                    <span class="qr-info-value" id="qrIban">-</span>
+                </div>
+                <div class="qr-info-item">
+                    <span class="qr-info-label">Amount:</span>
+                    <span class="qr-info-value" id="qrAmount">-</span>
+                </div>
+                <div class="qr-info-item" id="particularsInfo" style="display: none;">
+                    <span class="qr-info-label">Particulars:</span>
+                    <span class="qr-info-value" id="qrParticulars">-</span>
+                </div>
+            </div>
+            
+            <div class="payload-display" id="payloadDisplay"></div>
+        </div>
+    </div>
+
+    <script>
+        let qrCodeInstance = null;
+
+        // Pakistani bank codes mapping - extended list
+        const validBankCodes = [
+            "ABPA","AIIN","ALFH","ASCM","BAHL","BIPL","BPUN","BKIP","BKCH","BMLP","CITI","DEUT","DUIB",
+            "FAYS","FABL","FWOM","FMFB","HABB","HABM","JSBL","KHYB","MCIB","MUCB","MEBL","NBPA","NRSP",
+            "SAMB","SAUD","SCBL","SMES","SILK","SIND","SMBL","SONE","SUMB","TMFB","UMBL","UNIL","WMBL",
+            "ZTBL","SMFB","BOTK","SBPP","NBPA"
+        ];
+
+        const bankNames = {
+            "ALFH":"Bank Alfalah Limited", "ABPA":"Alied Bank Limited","HABB":"Habib Bank Limited","SCBL":"Standard Chartered Bank Pakistan",
+            "FAYS":"Faysal Bank Limited","MCIB":"MCB Islamic Bank Limited","BAHL":"Bank Al Habib Limited",
+            "NBPA":"National Bank of Pakistan","UNIL":"United Bank Limited","ASCM":"Askari Bank Limited",
+            "BPUN":"Bank of Punjab","MEBL":"Meezan Bank Limited","DUIB":"Dubai Islamic Bank Pakistan",
+            "AIIN":"Albaraka Bank Pakistan","SAMB":"Samba Bank Limited","SONE":"Soneri Bank Limited",
+            "ZTBL":"Zarai Taraqiati Bank Limited","TMFB":"Telenor Microfinance Bank","FMFB":"First Microfinance Bank",
+            "WMBL":"Mobilink Microfinance Bank","SMFB":"Sindh Microfinance Bank","BKIP":"Bank Islami Pakistan",
+            "SMES":"SME Bank Limited","FWOM":"First Women Bank","DEUT":"Deutsche Bank Karachi","CITI":"CitiBank NA",
+            "BOTK":"MUFG Bank Ltd","KHYB":"Bank of Khyber","SIND":"Sindh Bank Limited","NRSP":"NRSP Microfinance Bank"
+        };
+
+        // Validate IBAN structure
+        function validateIBAN(iban) {
+            iban = iban.replace(/\s/g, '').toUpperCase();
+            if (!/^PK[0-9]{2}[A-Z]{4}[0-9]{14,16}$/.test(iban)) {
+                return false;
+            }
+            const bankCode = iban.substring(4, 8);
+            const extendedBankCodes = [...validBankCodes, 'TMFB'];
+            return extendedBankCodes.includes(bankCode);
+        }
+
+        // Parse IBAN components
+        function parseIBAN(iban) {
+            iban = iban.replace(/\s/g, '').toUpperCase();
+            return {
+                countryCode: iban.substring(0, 2),
+                checkDigits: iban.substring(2, 4),
+                bankCode: iban.substring(4, 8),
+                accountNumber: iban.substring(8, 24),
+                bankName: bankNames[iban.substring(4, 8)] || 'Unknown Bank'
+            };
+        }
+
+        // Calculate CRC16-CCITT
+        function calculateCRC16(data) {
+            const polynomial = 0x1021;
+            let crc = 0xFFFF;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= (data.charCodeAt(i) << 8);
+                for (let j = 0; j < 8; j++) {
+                    crc = (crc & 0x8000) ? ((crc << 1) ^ polynomial) : (crc << 1);
+                }
+            }
+            return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        // -------------------------
+        // SBP RAAST P2P QR CODE PAYLOAD BUILDER
+        // Following State Bank of Pakistan Standard v1.0 (March 2022)
+        // -------------------------
+
+        // Build QR payload according to Raast P2P standard
+        function buildP2PPayload(iban, amount, particulars, expiry) {
+            let payload = '';
+
+            // -------------------------
+            // MANDATORY TAG DEFINITIONS (SBP Standard)
+            // -------------------------
+
+            // Tag 00 – Payload Format Indicator
+            // Fixed value "02" for EMV MPM compliant QR codes
+            // Length: 2 characters, Presence: Mandatory
+            payload += '00' + '02' + '02';
+
+            // Tag 01 – Point of Initiation Method  
+            // "11" = Static QR (reusable, amount entered manually)
+            // "12" = Dynamic QR (amount embedded, single use)
+            // Length: 2 characters, Presence: Mandatory
+            payload += '01' + '02' + '12';
+
+            // Tag 02 – Scheme Identifier
+            // "00" = Raast P2P scheme identifier (as per SBP standard)
+            // This identifies the payment scheme being used
+            // Length: 2 characters, Presence: Mandatory
+            payload += '02' + '02' + '00';
+
+            // Tag 04 – IBAN (Beneficiary Account)
+            // International Bank Account Number of the recipient
+            // Must be valid Pakistani IBAN (24-26 characters starting with PK)
+            // Length: Variable up to 26 characters, Presence: Mandatory
+            const ibanClean = iban.toUpperCase().substring(0, 26);
+            const ibanLength = ibanClean.length.toString().padStart(2, '0');
+            payload += '04' + ibanLength + ibanClean;
+
+            // Tag 05 – Transaction Amount
+            // Amount in PKR (Pakistani Rupees)
+            // Format: Numeric with up to 2 decimal places
+            // Length: Variable up to 10 characters, Presence: Conditional (present for dynamic QR)
+            const amountStr = parseFloat(amount) % 1 === 0 ? parseInt(amount).toString() : parseFloat(amount).toFixed(2);
+            const amountLength = amountStr.length.toString().padStart(2, '0');
+            payload += '05' + amountLength + amountStr;
+
+            // -------------------------
+            // OPTIONAL TAG DEFINITIONS
+            // -------------------------
+
+            // Tag 06 – Transaction Particulars (Purpose of Transfer)
+            // Optional field for transaction purpose as per SBP categories
+            // Length: Variable up to 30 characters, Presence: Optional
+            if (particulars && particulars.trim()) {
+                const particularsClean = particulars.trim().substring(0, 30);
+                const particularsLength = particularsClean.length.toString().padStart(2, '0');
+                payload += '06' + particularsLength + particularsClean;
+            }
+
+            // Tag 07 – Expiry DateTime
+            // Optional expiry for QR code validity
+            // Format: DDMMYYYYhhmm (12 digits)
+            // Day-Month-Year-Hour-Minute format
+            // Length: 12 characters, Presence: Optional
+            if (expiry && expiry.trim() && expiry.trim().length === 12) {
+                const expiryClean = expiry.trim();
+                payload += '07' + '12' + expiryClean;
+            }
+
+            // -------------------------
+            // INTEGRITY CHECK
+            // -------------------------
+
+            // Tag 10 – CRC Checksum
+            // Cyclic Redundancy Check for payload integrity
+            // Calculated using CRC16-CCITT algorithm
+            // Length: 4 characters (hexadecimal), Presence: Mandatory
+            const payloadWithoutCRC = payload + '10' + '04';
+            const crc = calculateCRC16(payloadWithoutCRC);
+            payload += '10' + '04' + crc;
+
+            return payload;
+        }
+
+        // -------------------------
+        // Input Event Handlers
+        // -------------------------
+
+        // IBAN input handler
+        document.getElementById('iban').addEventListener('input', function(e) {
+            const iban = e.target.value.replace(/\s/g, '').toUpperCase();
+            e.target.value = iban;
+
+            if (!iban) {
+                e.target.classList.remove('validation-success', 'validation-error');
+                document.getElementById('ibanError').classList.remove('active');
+                document.getElementById('ibanInfo').style.display = 'none';
+                return;
+            }
+
+            if (iban.length >= 24 && iban.length <= 26 && validateIBAN(iban)) {
+                e.target.classList.remove('validation-error');
+                e.target.classList.add('validation-success');
+                document.getElementById('ibanError').classList.remove('active');
+                const ibanData = parseIBAN(iban);
+                document.getElementById('bankCode').textContent = `${ibanData.bankCode} (${ibanData.bankName})`;
+                document.getElementById('accountNumber').textContent = ibanData.accountNumber;
+                document.getElementById('checkDigits').textContent = ibanData.checkDigits;
+                document.getElementById('ibanInfo').style.display = 'block';
+            } else {
+                e.target.classList.remove('validation-success');
+                e.target.classList.add('validation-error');
+                document.getElementById('ibanError').classList.add('active');
+                document.getElementById('ibanInfo').style.display = 'none';
+            }
+        });
+
+        // Amount input handler
+        document.getElementById('amount').addEventListener('input', function(e) {
+            if (!e.target.value) {
+                e.target.classList.remove('validation-success', 'validation-error');
+                document.getElementById('amountError').classList.remove('active');
+                return;
+            }
+            if (parseFloat(e.target.value) > 0) {
+                e.target.classList.remove('validation-error');
+                e.target.classList.add('validation-success');
+                document.getElementById('amountError').classList.remove('active');
+            } else {
+                e.target.classList.remove('validation-success');
+                e.target.classList.add('validation-error');
+                document.getElementById('amountError').classList.add('active');
+            }
+        });
+
+        // Form submission
+        document.getElementById('qrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const iban = document.getElementById('iban').value.replace(/\s/g, '').toUpperCase();
+            const amount = document.getElementById('amount').value;
+            const particulars = document.getElementById('particulars').value;
+            const expiry = document.getElementById('expiry').value;
+
+            // Validate IBAN
+            if (!validateIBAN(iban)) {
+                document.getElementById('iban').classList.add('validation-error');
+                document.getElementById('ibanError').classList.add('active');
+                return;
+            }
+
+            // Validate Amount
+            if (!amount || parseFloat(amount) <= 0) {
+                document.getElementById('amount').classList.add('validation-error');
+                document.getElementById('amountError').classList.add('active');
+                return;
+            }
+
+            // Validate Expiry Date format if provided
+            if (expiry && expiry.trim()) {
+                const expiryPattern = /^\d{12}$/;
+                if (!expiryPattern.test(expiry.trim())) {
+                    alert('Invalid expiry format. Please use DDMMYYYYhhmm format (e.g., 310820251150)');
+                    return;
+                }
+                
+                // Basic date validation
+                const day = parseInt(expiry.substring(0, 2));
+                const month = parseInt(expiry.substring(2, 4));
+                const year = parseInt(expiry.substring(4, 8));
+                const hour = parseInt(expiry.substring(8, 10));
+                const minute = parseInt(expiry.substring(10, 12));
+                
+                if (day < 1 || day > 31 || month < 1 || month > 12 || 
+                    year < 2025 || hour > 23 || minute > 59) {
+                    alert('Invalid date/time in expiry. Please check day (01-31), month (01-12), year (2025+), hour (00-23), minute (00-59)');
+                    return;
+                }
+            }
+
+            // Generate payload using SBP standard
+            const payload = buildP2PPayload(iban, amount, particulars, expiry);
+
+            // Clear existing QR code
+            if (qrCodeInstance) {
+                document.getElementById('qrcode').innerHTML = '';
+            }
+
+            // Generate new QR code
+            qrCodeInstance = new QRCode(document.getElementById('qrcode'), {
+                text: payload,
+                width: 256,
+                height: 256,
+                colorDark: '#000000',
+                colorLight: '#FFFFFF',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            // Update display information
+            document.getElementById('qrIban').textContent = iban;
+            document.getElementById('qrAmount').textContent = `PKR ${parseFloat(amount).toFixed(2)}`;
+            
+            // Show particulars if selected
+            if (particulars && particulars.trim()) {
+                document.getElementById('particularsInfo').style.display = 'flex';
+                document.getElementById('qrParticulars').textContent = particulars.trim();
+            } else {
+                document.getElementById('particularsInfo').style.display = 'none';
+            }
+            
+            // Display the complete payload for verification
+            document.getElementById('payloadDisplay').textContent = `Payload: ${payload}`;
+            document.getElementById('qrContainer').classList.add('active');
+            document.getElementById('qrContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    </script>
+</body>
+</html>
