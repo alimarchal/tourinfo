@@ -71,13 +71,15 @@
                 <tr>
                     <th>Trip Name</th>
                     <th>Guest Name</th>
-                    <th>Amount</th>
+                    <th>DESCRIPTION</th>
+                    <th></th>Amount</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>{{ $invoiceBill->trip->trip_name }}</td>
                     <td>{{ $invoiceBill->trip->guest_name }}</td>
+                    <td>{{ $invoiceBill->details ?: ($invoiceBill->transaction_particulars ?: 'Payment') }}</td>
                     <td class="text-right">PKR {{ number_format($invoiceBill->amount, 2) }}</td>
                 </tr>
             </tbody>

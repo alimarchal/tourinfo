@@ -317,7 +317,8 @@
                         doc.setFont('helvetica','normal');
                         doc.setTextColor(60);
                         
-                        const description = invoice.transaction_particulars || 'Payment';
+                        // Use database Details as primary description; fallback to Transaction Particulars; then generic
+                        const description = (invoice.details && String(invoice.details).trim()) || invoice.transaction_particulars || 'Payment';
                         doc.text(description, 50, y);
                         doc.text('PKR ' + invoice.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}), pageWidth - 50, y, { align: 'right' });
                         
