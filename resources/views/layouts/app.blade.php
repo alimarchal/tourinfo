@@ -11,7 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <script src="{{ url('apexcharts/apexcharts.js') }}"></script>
+    
     <link href="{{ url('select2/select2.min.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url('jsandcss/daterangepicker.min.css') }}">
     <script src="{{ url('jsandcss/moment.min.js') }}"></script>
