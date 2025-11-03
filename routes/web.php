@@ -31,4 +31,5 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
 
     Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 
+    Route::resource('invoice-bills', \App\Http\Controllers\InvoiceBillController::class);
 });
